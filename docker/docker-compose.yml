@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+  scv-api:
+    container_name: SCV.Api.Compose
+    build:
+      context: ../SCV.Api
+      dockerfile: Dockerfile
+
+  scv-web-dev:
+    container_name: SCV.Web
+    build:
+      context: ../SCV.Web
+      dockerfile: ../docker/Dockerfile-web-dev
+    ports:
+      - 8080:8080
+    volumes:
+      - "../SCV.Web/public:/usr/src/app/public"
+      - "../SCV.Web/src:/usr/src/app/src"
+      - "../SCV.Web/package.json:/usr/src/app/package.json"
+      - "../SCV.Web/tsconfig.json:/usr/src/app/tsconfig.json"
+    networks:
+      - app-network
+    depends_on:
+      - scv-api
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge

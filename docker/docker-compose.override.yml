@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  scv-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    ports:
+      - 30389:80
+      - 30390:443
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

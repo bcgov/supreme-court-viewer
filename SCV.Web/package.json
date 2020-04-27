@@ -1,0 +1,49 @@
+{
+  "name": "scv.web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "clean": "",
+    "lint": "vue-cli-service lint"
+  },
+  "description": "SCV.web",
+  "author": {
+    "name": ""
+  },
+  "dependencies": {
+    "@bcgov/bootstrap-theme": "https://github.com/bcgov/bootstrap-theme/releases/download/v1.1.3/bcgov-bootstrap-theme-1.1.3.tgz",
+    "axios": "^0.19.2",
+    "bootstrap": "^4.4.1",
+    "bootstrap-vue": "^2.12.0",
+    "node-sass": "^4.14.0",
+    "sass-loader": "^8.0.2",
+    "ts-loader": "^7.0.1",
+    "tslib": "^1.11.1",
+    "typescript": "3.8.3",
+    "vue": "2.6.11",
+    "vue-class-component": "6.3.2",
+    "vue-property-decorator": "7.3.0",
+    "vue-router": "^3.1.6",
+    "vuex": "^3.3.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.3.1",
+    "@vue/cli-plugin-typescript": "^4.3.1",
+    "@vue/cli-service": "^4.3.1",
+    "prettier": "^1.19.1",
+    "typescript": "3.8.3",
+    "vue-template-compiler": "2.6.11"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}
