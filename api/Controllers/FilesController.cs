@@ -233,7 +233,7 @@ namespace Scv.Api.Controllers
 
 
         #region Helpers
-        FileContentResult BuildFileResponse(string fileNameAndExtension, string content)
+        private FileContentResult BuildFileResponse(string fileNameAndExtension, string content)
         {
             System.Net.Mime.ContentDisposition cd = new System.Net.Mime.ContentDisposition
             {

@@ -198,25 +198,25 @@ export default class CivilDocumentsView extends Vue {
     }
 
     public openDocumentsPdf(documentId): void {
-        this.loadingPdf = true
+        this.loadingPdf = true;
         // TODO: remove the hardcoded documentId once sample data has pdf
-        documentId = 70
-        const filename = 'doc'+documentId+'.pdf'
+        documentId = 70;
+        const filename = 'doc' + documentId + '.pdf';
         // TODO: change to civil when a civil documentID is available 
 
-        window.open(`api/files/document/${documentId}/${filename}?isCriminal=true`)
-        this.loadingPdf = false
+        window.open(`api/files/document/${documentId}/${filename}?isCriminal=true`);
+        this.loadingPdf = false;
     }
     
     public openCourtSummaryPdf(appearanceId): void {
 
-        this.loadingPdf = true
+        this.loadingPdf = true;
         // TODO: remove the hardcoded appearanceId once sample data has pdf
-        appearanceId = 10098
-        const filename = 'court summary'+appearanceId+'.pdf'
+        appearanceId = 10098;
+        const filename = 'court summary'+appearanceId+'.pdf';
 
-        window.open(`api/files/civil/court-summary-report/${appearanceId}/${filename}`)
-        this.loadingPdf = false
+        window.open(`api/files/civil/court-summary-report/${appearanceId}/${filename}`);
+        this.loadingPdf = false;
     }
     
     public colHover(hovered, mouseEvent) {            
