@@ -19,7 +19,7 @@
             </b-col> -->
             <b-col class="mb-3" sm="9">
                 <label for="filenumber"> File number: </label>
-                <b-form-input id="filenumber" v-model="civilFileDocument.fileNumber" placeholder="Enter file number"></b-form-input>
+                <b-form-input id="filenumber" v-model="civilFileDocument.fileNumber" placeholder="Enter file number" @keyup.enter="navigateToDocumentsView(civilFileDocument)"></b-form-input>
             </b-col>
             <b-col class="mb-3" sm="9">
                 <b-button @click="navigateToDocumentsView(civilFileDocument)">Search</b-button>
