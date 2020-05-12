@@ -69,7 +69,8 @@ export default class CivilDocumentsView extends Vue {
     public civilFileDocument!: any
 
     public getDocuments(): void {
-
+        if (this.civilFileDocument.fileNumber === undefined)
+            this.civilFileDocument.fileNumber = this.$route.query.fileNumber;
         this.$http.get('api/files/civil/'+ this.civilFileDocument.fileNumber)
             .then(Response => Response.json(), err => console.log('error')        
             ).then(data => {
