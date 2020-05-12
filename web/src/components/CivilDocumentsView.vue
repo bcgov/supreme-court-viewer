@@ -196,45 +196,15 @@ export default class CivilDocumentsView extends Vue {
         }       
     }
 
-    public b64toBlob(b64Data, contentType) {
-
-        const byteCharacters = atob(b64Data);
-        const byteArrays: any = [];
-        for ( let offset = 0; offset < byteCharacters.length; offset = offset + 512 ) {
-            const slice = byteCharacters.slice(offset, offset + 512);
-            const byteNumbers = new Array(slice.length);
-            for (let i = 0; i < slice.length; i++) {
-                byteNumbers[i] = slice.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            byteArrays.push(byteArray);
-        }
-        return new Blob(byteArrays, { type: contentType });
-    }
-
     public openDocumentsPdf(documentId): void {
         this.loadingPdf = true
         // TODO: remove the hardcoded documentId once sample data has pdf
         documentId = 70
-        const filename = 'doc'+documentId+'.pdf';
+        const filename = 'doc'+documentId+'.pdf'
         // TODO: change to civil when a civil documentID is available 
 
-        this.$http.get('api/files/document/' + documentId + '/filename.pdf?isCriminal=true')
-            .then(Response => Response.json(), err =>  this.loadingPdf = false        
-            ).then(data => {
-                
-                if(window.navigator && window.navigator.msSaveOrOpenBlob) {
-                    window.navigator.msSaveOrOpenBlob(this.b64toBlob(data.b64Content,'application/pdf'), filename);
-                }
-                else
-                {
-                    const url = URL.createObjectURL(this.b64toBlob(data.b64Content,'application/pdf'))
-                    window.open(url);
-                }             
-
-                this.loadingPdf = false;
- 
-            }, err =>  this.loadingPdf = false);        
+        window.open(`api/files/document/${documentId}/${filename}?isCriminal=true`)
+        this.loadingPdf = false
     }
     
     public openCourtSummaryPdf(appearanceId): void {
@@ -242,22 +212,10 @@ export default class CivilDocumentsView extends Vue {
         this.loadingPdf = true
         // TODO: remove the hardcoded appearanceId once sample data has pdf
         appearanceId = 10098
-        const filename = 'court summary'+appearanceId+'.pdf';
+        const filename = 'court summary'+appearanceId+'.pdf'
 
-        this.$http.get("api/files/civil/court-summary-report/" + appearanceId + "/filename.pdf")
-            .then(Response => Response.json(), err =>  this.loadingPdf = false        
-            ).then(data => {
-                
-                if(window.navigator && window.navigator.msSaveOrOpenBlob) {
-                    window.navigator.msSaveOrOpenBlob(this.b64toBlob(data.reportContent,'application/pdf'), filename);
-                }
-                else
-                {
-                    const url = URL.createObjectURL(this.b64toBlob(data.reportContent,'application/pdf'))
-                    window.open(url);
-                }
-                 this.loadingPdf = false 
-            }, err =>  this.loadingPdf = false);
+        window.open(`api/files/civil/court-summary-report/${appearanceId}/${filename}`)
+        this.loadingPdf = false
     }
     
     public colHover(hovered, mouseEvent) {            

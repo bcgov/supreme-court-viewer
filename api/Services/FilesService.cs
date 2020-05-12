@@ -77,6 +77,7 @@ namespace Scv.Api.Services
             {
                 document.Category = _lookupService.GetDocumentCategory(document.DocumentTypeCd);
                 document.DocumentTypeDescription = await _lookupService.GetDocumentDescriptionAsync(document.DocumentTypeCd);
+                document.ImageId = document.SealedYN != "N" ? null : document.ImageId;
             }
 
             return civilFileDetail;

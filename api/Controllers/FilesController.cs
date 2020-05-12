@@ -1,15 +1,12 @@
 ﻿using JCCommon.Clients.FileServices;
 using JCCommon.Models;
-using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Scv.Api.Helpers.ContractResolver;
-using Scv.Api.Helpers.Exceptions;
-using Scv.Api.Models;
 using System;
 using System.Threading.Tasks;
 using Scv.Api.Constants;
+using Scv.Api.Helpers.Exceptions;
 using Scv.Api.Models.Civil;
 using Scv.Api.Models.Criminal;
 using Scv.Api.Services;
@@ -84,18 +81,22 @@ namespace Scv.Api.Controllers
         /// Gets court summary report for a given appearance id.
         /// </summary>
         /// <param name="appearanceId"></param>
+        /// <param name="fileNameAndExtension"></param>
         /// <returns>JustinReportResponse</returns>
         [HttpGet]
-        [Route("civil/court-summary-report/{appearanceId}/{fileName?}")]
-        public async Task<ActionResult<JustinReportResponse>> GetCivilCourtSummaryReport(string appearanceId)
+        [Route("civil/court-summary-report/{appearanceId}/{fileNameAndExtension}")]
+        public async Task<IActionResult> GetCivilCourtSummaryReport(string appearanceId, string fileNameAndExtension)
         {
             var justinReportResponse = await _filesService.FilesCivilCourtsummaryreportAsync(appearanceId, JustinReportName.CEISR035);
-            return Ok(justinReportResponse);
+
+            if (justinReportResponse.ReportContent.Length <= 0)
+                throw new BadRequestException("Couldn't find CSR with this appearance id.");
+
+            return BuildFileResponse(fileNameAndExtension, justinReportResponse.ReportContent);
         }
 
         /// <summary>
         /// Gets the civil file content.
-        /// This should cover the 1st screenshot. This includes document description, which is important for forming the PDF file names. 
         /// </summary>
         /// <param name="agencyId"></param>
         /// <param name="roomCode"></param>
@@ -156,7 +157,6 @@ namespace Scv.Api.Controllers
 
         /// <summary>
         /// Gets the criminal file content.
-        /// This should cover some of the 3rd screenshot.
         /// </summary>
         /// <param name="agencyId"></param>
         /// <param name="roomCode"></param>
@@ -176,16 +176,21 @@ namespace Scv.Api.Controllers
         /// Gets records of proceedings.
         /// </summary>
         /// <param name="partId">The participant id associated to the Record Of Proceedings.</param>
+        /// <param name="fileNameAndExtension"></param>
         /// <param name="profSequenceNumber"></param>
         /// <param name="courtLevelCode">The associated court level code.</param>
         /// <param name="courtClassCode">The associated court class code.</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("criminal/record-of-proceedings/{partId}/{fileName?}")]
-        public async Task<ActionResult<RopResponse>> GetRecordsOfProceeding(string partId, string profSequenceNumber, CourtLevelCd courtLevelCode, CourtClassCd courtClassCode)
+        [Route("criminal/record-of-proceedings/{partId}/{fileNameAndExtension}")]
+        public async Task<IActionResult> GetRecordsOfProceeding(string partId, string fileNameAndExtension, string profSequenceNumber, CourtLevelCd courtLevelCode, CourtClassCd courtClassCode)
         {
             var recordsOfProceeding = await _filesService.FilesRecordOfProceedingsAsync(partId, profSequenceNumber, courtLevelCode, courtClassCode);
-            return Ok(recordsOfProceeding);
+
+            if (recordsOfProceeding.B64Content.Length <= 0)
+                throw new BadRequestException("Couldn't find ROP with this part id.");
+
+            return BuildFileResponse(fileNameAndExtension, recordsOfProceeding.B64Content);
         }
         #endregion
 
@@ -209,19 +214,39 @@ namespace Scv.Api.Controllers
 
         /// <summary>
         /// Gets a document.
-        /// Should cover 2nd and 4th screenshots? 
         /// </summary>
         /// <param name="documentId"></param>
+        /// <param name="fileNameAndExtension">Name of the file and extension.</param>
         /// <param name="isCriminal">True if Criminal, False if Civil</param>
         /// <returns>DocumentResponse</returns>
         [HttpGet]
-        [Route("document/{documentId}/{fileName?}")]
-        public async Task<ActionResult<DocumentResponse>> GetDocument(string documentId, bool isCriminal = false)
+        [Route("document/{documentId}/{fileNameAndExtension}")]
+        public async Task<IActionResult> GetDocument(string documentId, string fileNameAndExtension,  bool isCriminal = false)
         {
             var documentResponse = await _filesService.FilesDocumentAsync(documentId, isCriminal);
-            return Ok(documentResponse);
+
+            if (documentResponse.B64Content.Length <= 0)
+                throw new BadRequestException("Couldn't find document with this id.");
+
+            return BuildFileResponse(fileNameAndExtension, documentResponse.B64Content);
+        }
+
+
+        #region Helpers
+        FileContentResult BuildFileResponse(string fileNameAndExtension, string content)
+        {
+            System.Net.Mime.ContentDisposition cd = new System.Net.Mime.ContentDisposition
+            {
+                FileName = $"{fileNameAndExtension}",
+                Inline = true  // false = prompt the user for downloading;  true = browser to try to show the file inline
+            };
+            Response.Headers.Add("Content-Disposition", cd.ToString());
+            Response.Headers.Add("X-Content-Type-Options", "nosniff");
+
+            return File(Convert.FromBase64String(content), "application/pdf", $"{fileNameAndExtension}");
         }
         #endregion
 
+        #endregion
     }
 }
