@@ -7,7 +7,7 @@ using LazyCache;
 using Microsoft.Extensions.Configuration;
 using Scv.Api.Helpers.ContractResolver;
 using Scv.Api.Helpers.Exceptions;
-using DocumentCodeLookup = System.Collections.Generic.ICollection<JCCommon.Clients.LookupServices.LookupCode>;
+using CodeLookup = System.Collections.Generic.ICollection<JCCommon.Clients.LookupServices.LookupCode>;
 
 namespace Scv.Api.Services
 {
@@ -22,6 +22,7 @@ namespace Scv.Api.Services
         private readonly LookupServiceClient _lookupClient;
 
         public const string LookupDocumentDescriptions = nameof(LookupDocumentDescriptions);
+        public const string LookupRoleTypeDescriptions = nameof(LookupRoleTypeDescriptions);
         #endregion
 
         #region Properties
@@ -54,7 +55,7 @@ namespace Scv.Api.Services
         ///  Uses LazyCache to query LookupServiceClient for lookup codes. This is about 600 codes atm.
         /// </summary>
         /// <returns></returns>
-        public async Task<DocumentCodeLookup> GetDocumentCodesFromLazyCache() => await _cache.GetOrAddAsync(LookupDocumentDescriptions, async () => await _lookupClient.CodesDocumentsAsync(), CacheExpiry);
+        public async Task<CodeLookup> GetDocumentCodesFromLazyCache() => await _cache.GetOrAddAsync(LookupDocumentDescriptions, async () => await _lookupClient.CodesDocumentsAsync(), CacheExpiry);
 
         /// <summary>
         /// Reads from the configuration for the document category.
@@ -68,6 +69,14 @@ namespace Scv.Api.Services
                 throw new ConfigurationException("Couldn't not build dictionary based on DocumentCategories");
             return configurationSections.FirstOrDefault(cs => cs.Value.Split(",").Contains(documentCode)).Key ?? "";
         }
+
+        public async Task<string> GetCivilRoleTypeDescription(string roleTypeCode)
+        {
+            var roleCodes = await GetRoleTypeCodesFromLazyCache();
+            return roleCodes.FirstOrDefault(lookupCode => lookupCode.Code == roleTypeCode)?.ShortDesc ?? "";
+        }
+
+        public async Task<CodeLookup> GetRoleTypeCodesFromLazyCache() => await _cache.GetOrAddAsync(LookupRoleTypeDescriptions, async () => await _lookupClient.CodesRolesAsync(), CacheExpiry);
         #endregion
 
         #region Helpers

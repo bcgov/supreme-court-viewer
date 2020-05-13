@@ -72,12 +72,18 @@ namespace Scv.Api.Services
 
             var civilFileDetail = _mapper.Map<RedactedCivilFileDetailResponse>(civilFileDetailResponse);
 
-            //Populate the Category and DocumentTypeDescription.
+            //Populate extra fields for document.
             foreach (var document in civilFileDetail.Document)
             {
                 document.Category = _lookupService.GetDocumentCategory(document.DocumentTypeCd);
                 document.DocumentTypeDescription = await _lookupService.GetDocumentDescriptionAsync(document.DocumentTypeCd);
                 document.ImageId = document.SealedYN != "N" ? null : document.ImageId;
+            }
+
+            //Populate extra fields for party. 
+            foreach (var party in civilFileDetail.Party)
+            {
+                party.RoleTypeDescription = await _lookupService.GetCivilRoleTypeDescription(party.RoleTypeCd);
             }
 
             return civilFileDetail;
