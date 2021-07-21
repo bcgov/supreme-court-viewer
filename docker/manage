@@ -75,7 +75,7 @@ build-api() {
     -e "CORS_DOMAIN=http://localhost:8080" \
     -e "DOTNET_STARTUP_PROJECT=./api/api.csproj" \
     '..' \
-    'registry.centos.org/dotnet/dotnet-31-centos7' \
+    'registry.access.redhat.com/ubi8/dotnet-50' \
     'scv-api'
   echo -e "===================================================================================================="
 }
@@ -106,7 +106,7 @@ build-web() {
     --copy \
 	-e "WEB_BASE_HREF=${WEB_BASE_HREF-/scjscv/}" \
     '../web' \
-    'centos/nodejs-10-centos7:10' \
+    'centos/nodejs-12-centos7' \
     'scv-web-artifacts'
   echo -e "===================================================================================================="
 
