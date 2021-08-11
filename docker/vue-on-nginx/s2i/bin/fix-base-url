@@ -1,0 +1,15 @@
+#!/bin/bash
+# Work around for Vue having a lack of a configurable publicPath that isn't relative (relative breaks history routing).
+# Unfortunately there doesn't seem to be an easier way of doing this without rebuilding.
+# Since we have a single web image, doesn't make sense to build the web-artifacts twice. 
+# Perhaps webpack 5 will have some sort of fix for this. 
+echo "---> Injecting public path /S2I_INJECT_PUBLIC_PATH/ -> $WEB_BASE_HREF..."
+FILES="/tmp/app/dist/index.html
+/tmp/app/dist/js/*.*"
+for f in $FILES
+do
+	tmp=$(sed "s|/S2I_INJECT_PUBLIC_PATH/|$WEB_BASE_HREF|g" "$f"); 
+	printf "%s" "$tmp" > "$f";
+done
+
+/usr/libexec/s2i/run
