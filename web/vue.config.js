@@ -6,6 +6,7 @@ const vueSrc = "src";
 //When deployed over NGINX this problem seems to go away. So I've left it as / for now in local development environments. 
 module.exports = {
 	publicPath:  process.env.NODE_ENV == 'production' ? '/S2I_INJECT_PUBLIC_PATH/' : '/',
+	//chainWebpack: config => config.optimization.minimize(false), Disable minification.
 	configureWebpack: {
 		devServer: {
 			historyApiFallback: true,
