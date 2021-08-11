@@ -100,11 +100,10 @@ build-web() {
   # I tried using __webpack_public_path__, but the CSS file path and JS file path weren't correctly updated. 
   # Also note we don't load in environment variables from the arguments here. 
   echo -e "\n\n===================================================================================================="
-  echo -e "Building the scv-web-artifacts image using s2i ... Using WEB_BASE_HREF: ${WEB_BASE_HREF-/scjscv/}"
+  echo -e "Building the scv-web-artifacts image using s2i ..."
   echo -e "----------------------------------------------------------------------------------------------------"
   ${S2I_EXE} build \
     --copy \
-	-e "WEB_BASE_HREF=${WEB_BASE_HREF-/scjscv/}" \
     '../web' \
     'quay.io/centos7/nodejs-12-centos7' \
     'scv-web-artifacts'

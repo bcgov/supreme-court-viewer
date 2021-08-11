@@ -32,7 +32,6 @@ services:
       - Request__AgencyIdentifierId=${RequestAgencyIdentifierId}
       - Request__PartId=${RequestPartId}
       - Request__GetUserLoginDefaultAgencyId=${RequestGetUserLoginDefaultAgencyId}
-      - WebBaseHref=${WEB_BASE_HREF}
       - Auth__UserId=${USER_ID}
       - Auth__UserPassword=${USER_PASSWORD}
       - Auth__AllowSiteMinderUserType=${ALLOW_SITE_MINDER_USER_TYPE}

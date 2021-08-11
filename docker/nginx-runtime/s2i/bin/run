@@ -41,6 +41,7 @@ read -r -d '' _FORWARDED_HEADERS << EOF
             proxy_set_header X-Forwarded-Server \$proxy_host;
             proxy_set_header X-Forwarded-Port   \$proxy_port;
             proxy_set_header X-Forwarded-Proto  \$proxy_scheme;
+            proxy_set_header X-Base-Href        ${WEB_BASE_HREF};
             proxy_pass_request_headers on;
             proxy_pass_header Authorization;
             proxy_pass_header Accept;
@@ -213,5 +214,15 @@ echo "---> Using self-signed SSH keys ..."
           -subj "/C=CA/ST=BC/L=BC/O=BCGOV/OU=Testing"
   fi
 fi
+
+# Work around for Vue having a lack of a configurable publicPath that isn't relative (relative breaks history routing).
+# Unfortunately there doesn't seem to be an easier way of doing this without rebuilding.
+# Since we have a single web image, doesn't make sense to build the web-artifacts twice. 
+# Perhaps webpack 5 will have some sort of fix for this. 
+echo "---> Injecting public path /S2I_INJECT_PUBLIC_PATH/ -> $WEB_BASE_HREF..."
+sed -i "s|/S2I_INJECT_PUBLIC_PATH/|$WEB_BASE_HREF|g" /tmp/app/dist/index.html
+sed -i "s|/S2I_INJECT_PUBLIC_PATH/|$WEB_BASE_HREF|g" /tmp/app/dist/js/*.js
+sed -i "s|/S2I_INJECT_PUBLIC_PATH/|$WEB_BASE_HREF|g" /tmp/app/dist/js/*.js.map
+
 echo "---> Starting nginx ..."
 /usr/sbin/nginx -g "daemon off;"

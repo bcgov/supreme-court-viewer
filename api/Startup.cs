@@ -145,13 +145,15 @@ namespace Scv.Api
                 app.UseDeveloperExceptionPage();
             }
 
-            var baseUrl = Configuration.GetNonEmptyValue("WebBaseHref");
             app.Use((context, next) =>
             {
                 context.Request.EnableBuffering();
                 context.Request.Scheme = "https";
-                if (context.Request.Headers.ContainsKey("X-Forwarded-Host") && !env.IsDevelopment())
+                if (context.Request.Headers.ContainsKey("X-Forwarded-Host") && !env.IsDevelopment()) 
+                {
+                    var baseUrl = context.Request.Headers["X-Base-Href"].ToString();
                     context.Request.PathBase = new PathString(baseUrl.Remove(baseUrl.Length - 1));
+                }
                 return next();
             });
 
@@ -168,6 +170,7 @@ namespace Scv.Api
 
                     var forwardedHost = httpReq.Headers["X-Forwarded-Host"];
                     var forwardedPort = httpReq.Headers["X-Forwarded-Port"];
+                    var baseUrl = httpReq.Headers["X-Base-Href"];
                     swaggerDoc.Servers = new List<OpenApiServer>
                     {
                         new OpenApiServer { Url = XForwardedForHelper.BuildUrlString(forwardedHost, forwardedPort, baseUrl) }

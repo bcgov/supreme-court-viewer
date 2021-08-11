@@ -59,7 +59,7 @@ namespace Scv.Api.Controllers
             var forwardedPort = HttpContext.Request.Headers["X-Forwarded-Port"];
 
             //We are always sending X-Forwarded-Port, only time we aren't is when we are hitting the API directly. 
-            var baseUri = HttpContext.Request.Headers.ContainsKey("X-Forwarded-Host") ? $"{Configuration.GetNonEmptyValue("WebBaseHref")}logout" : "/api";
+            var baseUri = HttpContext.Request.Headers.ContainsKey("X-Forwarded-Host") ? $"{HttpContext.Request.Headers["X-Base-Href"]}logout" : "/api";
 
             var applicationUrl = $"{XForwardedForHelper.BuildUrlString(forwardedHost, forwardedPort, baseUri)}";
             var keycloakLogoutUrl = $"{logoutUrl}?post_logout_redirect_uri={applicationUrl}";
@@ -95,7 +95,7 @@ namespace Scv.Api.Controllers
 
             var forwardedHost = Request.Headers["X-Forwarded-Host"];
             var forwardedPort = Request.Headers["X-Forwarded-Port"];
-            var baseUrl = Configuration.GetNonEmptyValue("WebBaseHref");
+            var baseUrl = Request.Headers["X-Base-Href"];
 
             return Ok(new
             {

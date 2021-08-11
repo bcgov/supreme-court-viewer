@@ -33,7 +33,6 @@ namespace Scv.Api.Infrastructure.Authentication
         public static IServiceCollection AddScvAuthentication(this IServiceCollection services,
             IWebHostEnvironment env, IConfiguration configuration)
         {
-            var baseUrl = configuration.GetNonEmptyValue("WebBaseHref");
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -197,6 +196,7 @@ namespace Scv.Api.Infrastructure.Authentication
                         {
                             var forwardedHost = context.HttpContext.Request.Headers["X-Forwarded-Host"];
                             var forwardedPort = context.HttpContext.Request.Headers["X-Forwarded-Port"];
+                            var baseUrl = context.HttpContext.Request.Headers["X-Base-Href"];
                             context.ProtocolMessage.RedirectUri =
                                 $"{XForwardedForHelper.BuildUrlString(forwardedHost, forwardedPort, baseUrl)}{options.CallbackPath}";
                         }
