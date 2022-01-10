@@ -37,7 +37,8 @@ namespace Scv.Api.Infrastructure.Authorization
             {
                 var actionDescriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
                 var isFilesController = actionDescriptor.ControllerTypeInfo.Name == nameof(FilesController);
-                
+                var isAuthController = actionDescriptor.ControllerTypeInfo.Name == nameof(AuthController);
+
                 var allowedActionsForVc = new List<string>
                 {
                     nameof(FilesController.GetCivilFileDetailByFileId),
@@ -49,6 +50,11 @@ namespace Scv.Api.Infrastructure.Authorization
 
                 if (isFilesController && allowedActionsForVc.Contains(actionDescriptor.ActionName))
                 {
+                    context.Succeed(requirement);
+                    return Task.CompletedTask;
+                }
+                if (isAuthController && actionDescriptor.ActionName == nameof(AuthController.UserInfo))
+                { 
                     context.Succeed(requirement);
                     return Task.CompletedTask;
                 }
