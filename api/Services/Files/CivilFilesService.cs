@@ -61,7 +61,7 @@ namespace Scv.Api.Services.Files
             _requestAgencyIdentifierId = user.AgencyCode();
             _requestPartId = user.ParticipantId();
             _logger = logger;
-            _filterOutDocumentTypes = configuration.GetNonEmptyValue("ExcludeDocumentTypeCodes").Split(",").ToList();
+            _filterOutDocumentTypes = configuration.GetNonEmptyValue("ExcludeDocumentTypeCodesForCounsel").Split(",").ToList();
         }
 
         #endregion Constructor
@@ -162,7 +162,7 @@ namespace Scv.Api.Services.Files
 
             var fileContentCivilFile = fileContent?.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
             detail.Party = await PopulateDetailParties(detail.Party);
-            detail.Document = await PopulateDetailDocuments(detail.Document, fileContentCivilFile);
+            detail.Document = await PopulateDetailDocuments(detail.Document, fileContentCivilFile, isVcUser);
             detail.HearingRestriction = await PopulateDetailHearingRestrictions(fileDetail.HearingRestriction);
             if (isVcUser) { 
                 //SCV-266 - Disable comments for VC Users.
@@ -216,7 +216,7 @@ namespace Scv.Api.Services.Files
             var fileContentCivilFile = fileContent?.CivilFile?.FirstOrDefault(cf => cf.PhysicalFileID == fileId);
             var previousAppearance = fileContentCivilFile?.PreviousAppearance.FirstOrDefault(pa => pa?.AppearanceId == appearanceId);
 
-            var documents = await PopulateDetailedAppearanceDocuments(fileDetailDocuments);
+            var documents = await PopulateDetailedAppearanceDocuments(fileDetailDocuments, isVcUser);
             if (isVcUser)
             {
                 foreach (var document in documents)
@@ -317,10 +317,10 @@ namespace Scv.Api.Services.Files
             return detail;
         }
 
-        private async Task<IList<CivilDocument>> PopulateDetailDocuments(IList<CivilDocument> documents, JCCommon.Clients.FileServices.CvfcCivilFile civilFileContent )
+        private async Task<IList<CivilDocument>> PopulateDetailDocuments(IList<CivilDocument> documents, CvfcCivilFile civilFileContent, bool isVcUser)
         {
             //Populate extra fields for document.
-            documents = documents.WhereToList(doc => !_filterOutDocumentTypes.Contains(doc.DocumentTypeCd));
+            documents = documents.WhereToList(doc => !isVcUser || !_filterOutDocumentTypes.Contains(doc.DocumentTypeCd));
             foreach (var document in documents.Where(doc => doc.Category != "CSR"))
             {
                 var documentFromFileContent = civilFileContent?.Document?.FirstOrDefault(doc => doc.DocumentId == document.CivilDocumentId);
@@ -468,11 +468,11 @@ namespace Scv.Api.Services.Files
             return resultParties;
         }
 
-        private async Task<ICollection<CivilAppearanceDocument>> PopulateDetailedAppearanceDocuments(List<CvfcDocument3> fileDetailDocuments)
+        private async Task<ICollection<CivilAppearanceDocument>> PopulateDetailedAppearanceDocuments(List<CvfcDocument3> fileDetailDocuments, bool isVcUser)
         {
             //CivilAppearanceDocument, doesn't include appearances.
             var documents = _mapper.Map<ICollection<CivilAppearanceDocument>>(fileDetailDocuments);
-            documents = documents.WhereToList(doc => !_filterOutDocumentTypes.Contains(doc.DocumentTypeCd));
+            documents = documents.WhereToList(doc => !isVcUser || !_filterOutDocumentTypes.Contains(doc.DocumentTypeCd));
             foreach (var document in documents)
             {
                 document.Category = _lookupService.GetDocumentCategory(document.DocumentTypeCd);
