@@ -6,8 +6,6 @@ FROM ${IMAGE_PREFIX}web-runtime:latest
 # to the distribution folder on the runtime image.
 COPY --from=builder /opt/app-root/src/dist/. /tmp/app/dist/
 
-RUN whoami
-
 # Ensure S2I script copied over is runnable.
 COPY ./s2i/bin/fix-base-url /usr/libexec/s2i/fix-base-url
 
