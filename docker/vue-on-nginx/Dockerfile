@@ -9,7 +9,7 @@ COPY --from=builder /opt/app-root/src/dist/. /tmp/app/dist/
 # Ensure S2I script copied over is runnable.
 COPY ./s2i/bin/fix-base-url /usr/libexec/s2i/fix-base-url
 
-#Fix permissions.
+# Fix permissions.
 USER root
 RUN chmod 755 /usr/libexec/s2i/fix-base-url
 USER 1000
