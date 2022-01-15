@@ -1,6 +1,6 @@
-ARG COMPOSE_PROJECT_NAME=""
-FROM ${COMPOSE_PROJECT_NAME}web-artifacts:latest as builder
-FROM ${COMPOSE_PROJECT_NAME}web-runtime:latest
+ARG IMAGE_PREFIX=""
+FROM ${IMAGE_PREFIX}web-artifacts:latest as builder
+FROM ${IMAGE_PREFIX}web-runtime:latest
 
 # Copy the build artifacts from the 'builder' image
 # to the distribution folder on the runtime image.
