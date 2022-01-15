@@ -1,0 +1,17 @@
+This includes more information regarding the Supreme Court Viewer. 
+
+The Supreme Court Viewer leverages the JC-Interface for all of it's calls. 
+The source code for the JC-Interface is private. 
+
+It runs two different web pods for Production only (as there is no TEST or DEV SiteMinder environment):
+    Siteminder
+    Non-Siteminder
+
+The Supreme Court Viewer has two routes into the application:
+1. Internally with Siteminder through jag. Target users are judges. 
+2. Externally without Siteminder through justice. Target users are counsel (from Access to Audio).
+
+Three ways to get access to the application:
+1. Siteminder for the Supreme Judiciary - calling UserInfo in CEIS.
+2. Keycloak for Counsel using Verifiable Credentials: Access to Audio backend call allowing access to specific Civil Files.
+3. Keycloak for Admins using IDIR: Group access via IDIR (either Provincial or Supreme).
