@@ -7,9 +7,7 @@ FROM ${COMPOSE_PROJECT_NAME}web-runtime:latest
 COPY --from=builder /opt/app-root/src/dist/. /tmp/app/dist/
 
 # Ensure S2I script copied over is runnable.
-COPY ./s2i/bin/fix-base-url /usr/libexec/s2i/fix-base-url
-
-RUN chmod +x /usr/libexec/s2i/fix-base-url
+COPY --chmod=0755 ./s2i/bin/fix-base-url /usr/libexec/s2i/fix-base-url
 
 # Since the runtime image is itself an s2i image we need to
 # short circuit the s2i lifecycle.
