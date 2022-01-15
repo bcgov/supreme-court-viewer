@@ -6,13 +6,17 @@ FROM ${IMAGE_PREFIX}web-runtime:latest
 # to the distribution folder on the runtime image.
 COPY --from=builder /opt/app-root/src/dist/. /tmp/app/dist/
 
+RUN whoami
+
 # Ensure S2I script copied over is runnable.
-COPY --chown=root:root ./s2i/bin/fix-base-url /usr/libexec/s2i/fix-base-url
+COPY ./s2i/bin/fix-base-url /usr/libexec/s2i/fix-base-url
 
 # Fix permissions.
-#USER root
-#RUN chmod 755 /usr/libexec/s2i/fix-base-url
-#USER 1000
+USER root
+RUN chmod 755 /usr/libexec/s2i/fix-base-url
+
+# From nginx-runtime.
+USER 104
 
 # Since the runtime image is itself an s2i image we need to
 # short circuit the s2i lifecycle.
