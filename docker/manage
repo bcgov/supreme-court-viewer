@@ -89,7 +89,7 @@ build-web() {
   # The vue-on-nginx image is copy of the nginx-runtime image complete with a copy of the build artifacts.
   #
   echo -e "\n\n===================================================================================================="
-  echo -e "Building the nginx-runtime image using Docker ..."
+  echo -e "Building the scv-web-runtime (nginx-runtime) image using Docker ..."
   echo -e "----------------------------------------------------------------------------------------------------"
   docker build \
     -t 'scv-web-runtime' \
