@@ -1,3 +1,4 @@
+ARG COMPOSE_PROJECT_NAME
 FROM ${COMPOSE_PROJECT_NAME}web-artifacts:latest as builder
 FROM ${COMPOSE_PROJECT_NAME}web-runtime:latest
 
