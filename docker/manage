@@ -84,7 +84,7 @@ build-web() {
   #
   # web
   #
-  # The nginx-runtime image is used for the final runtime image.
+  # The web-runtime image is used for the final runtime image.
   # The scv-app image is used to build the artifacts for the vue distribution.
   # The vue-on-nginx image is copy of the nginx-runtime image complete with a copy of the build artifacts.
   #
@@ -92,7 +92,7 @@ build-web() {
   echo -e "Building the nginx-runtime image using Docker ..."
   echo -e "----------------------------------------------------------------------------------------------------"
   docker build \
-    -t 'nginx-runtime' \
+    -t 'scv-web-runtime' \
     -f './nginx-runtime/Dockerfile' './nginx-runtime/'
   echo -e "===================================================================================================="
 
