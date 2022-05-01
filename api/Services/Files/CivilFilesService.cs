@@ -129,7 +129,7 @@ namespace Scv.Api.Services.Files
             return fileDetails;
         }
 
-        public async Task<RedactedCivilFileDetailResponse> FileIdAsync(string fileId, bool isVcUser)
+        public async Task<RedactedCivilFileDetailResponse> FileIdAsync(string fileId, bool isVcUser, bool isStaff)
         {
             async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, fileId);
             async Task<CivilFileContent> FileContent() => await _filesClient.FilesCivilFilecontentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode,null, null, null, null, fileId);
@@ -158,7 +158,8 @@ namespace Scv.Api.Services.Files
 
             var fileContentCivilFile = fileContent?.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
             detail.Party = await PopulateDetailParties(detail.Party);
-            detail.Document = await PopulateDetailDocuments(detail.Document, fileContentCivilFile, isVcUser);
+            // if sealing order, staff cannot view this part. So I guess we exclude it?
+            detail.Document = await PopulateDetailDocuments(detail.Document, fileContentCivilFile, isVcUser, isStaff);
             detail.HearingRestriction = await PopulateDetailHearingRestrictions(fileDetail.HearingRestriction);
             if (isVcUser) { 
                 //SCV-266 - Disable comments for VC Users.
@@ -313,10 +314,12 @@ namespace Scv.Api.Services.Files
             return detail;
         }
 
-        private async Task<IList<CivilDocument>> PopulateDetailDocuments(IList<CivilDocument> documents, CvfcCivilFile civilFileContent, bool isVcUser)
+        private async Task<IList<CivilDocument>> PopulateDetailDocuments(IList<CivilDocument> documents, CvfcCivilFile civilFileContent, bool isVcUser, bool isStaff)
         {
             //Populate extra fields for document.
             documents = documents.WhereToList(doc => !isVcUser || !_filterOutDocumentTypes.Contains(doc.DocumentTypeCd));
+            // SCV 286 - sealing order logic?
+            documents = documents.WhereToList(doc => !(doc.SealedYN == "Y" && isStaff));
             foreach (var document in documents.Where(doc => doc.Category != "CSR"))
             {
                 var documentFromFileContent = civilFileContent?.Document?.FirstOrDefault(doc => doc.DocumentId == document.CivilDocumentId);
