@@ -145,10 +145,6 @@ namespace Scv.Api.Services.Files
             var appearances = await appearancesTask;
             var fileContent = await fileContentTask;
 
-            //TEMP fix requested by Kevin Conn.
-            if (isVcUser && fileDetail.CfcsaFileYN == "Y")
-                throw new NotFoundException("Currently CFCSA access not allowed.");
-
             if (fileDetail?.PhysicalFileId == null)
                 return null;
 
