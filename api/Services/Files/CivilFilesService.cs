@@ -318,7 +318,7 @@ namespace Scv.Api.Services.Files
         {
             //Populate extra fields for document.
             documents = documents.WhereToList(doc => !isVcUser || !_filterOutDocumentTypes.Contains(doc.DocumentTypeCd));
-            // SCV 286 - sealing order logic?
+            // SCV 286 - pdf image to be excluded, not doc info
             documents = documents.WhereToList(doc => !(doc.SealedYN == "Y" && isStaff));
             foreach (var document in documents.Where(doc => doc.Category != "CSR"))
             {

@@ -61,6 +61,8 @@ namespace Scv.Api.Helpers.Extensions
 
         public static bool IsStaff(this ClaimsPrincipal claimsPrincipal)
             => claimsPrincipal.HasClaim(c => c.Type == CustomClaimTypes.Role) &&
-               claimsPrincipal.FindFirstValue(CustomClaimTypes.Role).EndsWith("staff");
+               claimsPrincipal.HasClaim(c => c.Type == CustomClaimTypes.SubRole) &&
+               claimsPrincipal.FindFirstValue(CustomClaimTypes.Role).Equals("EME") &&
+               claimsPrincipal.FindFirstValue(CustomClaimTypes.SubRole).Equals("SCV");
     }
 }
