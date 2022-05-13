@@ -36,7 +36,7 @@ namespace Scv.Api.Infrastructure.Authentication
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            /*string siteMinderUserGuidHeader = Request.Headers["SMGOV_USERGUID"];
+            string siteMinderUserGuidHeader = Request.Headers["SMGOV_USERGUID"];
             string siteMinderUserTypeHeader = Request.Headers["SMGOV_USERTYPE"];
 
             if (siteMinderUserGuidHeader == null || siteMinderUserTypeHeader == null)
@@ -44,7 +44,7 @@ namespace Scv.Api.Infrastructure.Authentication
             
             if (siteMinderUserTypeHeader != ValidSiteMinderUserType)
                 return AuthenticateResult.Fail("Invalid SiteMinder UserType Header.");
-            */
+
             var authenticatedBySiteMinderPreviously = Context.User.Identity.AuthenticationType == SiteMinder;
             var applicationCode = Context.User.ApplicationCode();
             var participantId = Context.User.ParticipantId(); 
@@ -53,8 +53,8 @@ namespace Scv.Api.Infrastructure.Authentication
             var role = Context.User.Role();
             var subRole = Context.User.SubRole();
 
-            /*if (!authenticatedBySiteMinderPreviously)
-            {*/
+            if (!authenticatedBySiteMinderPreviously)
+            {
                 var request = new UserInfoRequest
                 {
                     DeviceName = Environment.MachineName,
@@ -74,7 +74,7 @@ namespace Scv.Api.Infrastructure.Authentication
                 role = jcUserInfo.RoleCd;
                 subRole = jcUserInfo.SubRoleCd;
                 isSupremeUser = true;
-            //}
+            }
 
             var claims = new[] {
                 new Claim(CustomClaimTypes.ApplicationCode, applicationCode),

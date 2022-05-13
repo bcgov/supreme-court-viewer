@@ -97,8 +97,8 @@ namespace Scv.Api.Controllers
             if (User.IsVcUser() && civilFileDetailResponse.SealedYN != "N") 
                 return Forbid();
 
-            //if (User.IsSupremeUser() && civilFileDetailResponse.CourtLevelCd != CivilFileDetailResponseCourtLevelCd.S)
-            //    return Forbid();
+            if (User.IsSupremeUser() && civilFileDetailResponse.CourtLevelCd != CivilFileDetailResponseCourtLevelCd.S)
+                return Forbid();
 
             return Ok(civilFileDetailResponse);
         }

@@ -158,7 +158,6 @@ namespace Scv.Api.Services.Files
 
             var fileContentCivilFile = fileContent?.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
             detail.Party = await PopulateDetailParties(detail.Party);
-            // if sealing order, staff cannot view this part. So I guess we exclude it?
             detail.Document = await PopulateDetailDocuments(detail.Document, fileContentCivilFile, isVcUser, isStaff);
             detail.HearingRestriction = await PopulateDetailHearingRestrictions(fileDetail.HearingRestriction);
             if (isVcUser) { 
@@ -318,15 +317,13 @@ namespace Scv.Api.Services.Files
         {
             //Populate extra fields for document.
             documents = documents.WhereToList(doc => !isVcUser || !_filterOutDocumentTypes.Contains(doc.DocumentTypeCd));
-            // SCV 286 - pdf image to be excluded, not doc info
-            documents = documents.WhereToList(doc => !(doc.SealedYN == "Y" && isStaff));
             foreach (var document in documents.Where(doc => doc.Category != "CSR"))
             {
                 var documentFromFileContent = civilFileContent?.Document?.FirstOrDefault(doc => doc.DocumentId == document.CivilDocumentId);
                 document.FiledBy = documentFromFileContent?.FiledBy;
                 document.Category = _lookupService.GetDocumentCategory(document.DocumentTypeCd);
                 document.DocumentTypeDescription = await _lookupService.GetDocumentDescriptionAsync(document.DocumentTypeCd);
-                document.ImageId = document.SealedYN != "N" ? null : document.ImageId;
+                document.ImageId = (document.SealedYN == "Y" && isStaff) ? null : document.ImageId;
                 document.NextAppearanceDt = document.Appearance?.Where(app => DateTime.TryParse(app?.AppearanceDate, out DateTime appearanceDate) && appearanceDate >= DateTime.Today).FirstOrDefault()?.AppearanceDate;
                 document.Appearance = null;
                 document.SwornByNm = documentFromFileContent.SwornByNm;
