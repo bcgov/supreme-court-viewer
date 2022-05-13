@@ -121,8 +121,6 @@ namespace Scv.Api.Controllers
             else
                 userType = "judiciary";
 
-            var checkNewValue = HttpContext.User.Role();
-
             return Ok(new
             {
                 UserType = userType,
