@@ -170,6 +170,23 @@
           </b-badge>
         </template>
 
+        <template v-slot:cell(providedDocs)="data">
+          <b-button
+            :style="data.field.cellStyle"
+            size="sm"
+            :id="data.item.listClass + 'case-' + data.item.tag"
+            :href="'#' + data.item.listClass + 'case-' + data.item.tag"
+            @click="OpenCivilFilePageProvidedDocs(data)"
+            :variant="'outline-primary border-white text-' + data.item.listClass"
+            class="mr-2"
+          >
+            <b-icon-file-earmark-text
+              :variant="data.item.listClass"
+              v-if="!data.item['_showDetails']"
+            ></b-icon-file-earmark-text>
+          </b-button>
+        </template>
+
         <template v-slot:cell(fileMarkers)="data">
           <b-badge
             v-for="(field, index) in data.value"
@@ -278,6 +295,7 @@ const civilState = namespace("CivilFileInformation");
 import "@store/modules/CriminalFileInformation";
 import { criminalCourtListType } from "@/types/courtlist/jsonTypes";
 const criminalState = namespace("CriminalFileInformation");
+import CivilProvidedDocumentsView from "@components/civil/CivilProvidedDocumentsView.vue";
 
 enum HearingType {
   "A" = "+",
@@ -290,6 +308,7 @@ enum HearingType {
   components: {
     CivilAppearanceDetails,
     CriminalAppearanceDetails,
+    CivilProvidedDocumentsView
   },
 })
 export default class CourtListLayout extends Vue {
@@ -298,6 +317,9 @@ export default class CourtListLayout extends Vue {
 
   @civilState.State
   public civilAppearanceInfo!: civilAppearanceInfoType;
+
+  @civilState.State
+  public civilFileInformation!: civilFileInformationType;
 
   @criminalState.State
   public criminalAppearanceInfo!: criminalAppearanceInfoType;
@@ -383,6 +405,12 @@ export default class CourtListLayout extends Vue {
     {
       key: "counsel",
       label: "Counsel",
+      tdClass: "border-top",
+      cellStyle: "margin-top: 3px; font-size: 16px; font-weight:normal;",
+    },
+    {
+      key: "providedDocs",
+      label: "Provided Docs",
       tdClass: "border-top",
       cellStyle: "margin-top: 3px; font-size: 16px; font-weight:normal;",
     },
@@ -761,7 +789,23 @@ export default class CourtListLayout extends Vue {
     this.UpdateCivilFile(fileInformation);
     const routeData = this.$router.resolve({
       name: "CivilCaseDetails",
-      params: { fileNumber: fileInformation.fileNumber },
+      params: {
+        fileNumber: fileInformation.fileNumber
+      },
+    });
+    window.open(routeData.href, "_blank");
+  }
+
+  public OpenCivilFilePageProvidedDocs(data) {
+    const fileInformation = {} as civilFileInformationType;
+    fileInformation.fileNumber = data.item.fileId;
+    this.UpdateCivilFile(fileInformation);
+    const routeData = this.$router.resolve({
+      name: "CivilCaseDetails",
+      params: {
+        fileNumber: fileInformation.fileNumber,
+        section: "Provided Documents"
+      },
     });
     window.open(routeData.href, "_blank");
   }
