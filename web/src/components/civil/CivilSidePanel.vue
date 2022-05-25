@@ -53,7 +53,6 @@ export default class CivilSidePanel extends Vue {
             else
                 sections[item] = false;
         }
-        
         this.UpdateShowSections(sections);
     }
 

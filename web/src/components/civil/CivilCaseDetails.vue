@@ -132,6 +132,7 @@ import shared from "../shared";
 import { CourtDocumentType, DocumentData } from "@/types/shared";
 const civilState = namespace("CivilFileInformation");
 const commonState = namespace("CommonInformation");
+import {civilShowSectionsType} from '@/types/civil';
 
 @Component({
   components: {
@@ -170,6 +171,9 @@ export default class CivilCaseDetails extends Vue {
   @civilState.Action
   public UpdateHasNonParty!: (newHasNonParty: boolean) => void;
 
+  @civilState.Action
+  public UpdateShowSections!: (newShowSections: civilShowSectionsType) => void
+
   leftPartiesInfo: partiesInfoType[] = [];
   rightPartiesInfo: partiesInfoType[] = [];
   adjudicatorRestrictionsInfo: AdjudicatorRestrictionsInfoType[] = [];
@@ -204,6 +208,21 @@ export default class CivilCaseDetails extends Vue {
     this.civilFileInformation.fileNumber = this.$route.params.fileNumber;
     this.UpdateCivilFile(this.civilFileInformation);
     this.getFileDetails();
+
+    this.navigateToSection(this.$route.params.section);
+  }
+
+  public navigateToSection(section): void {
+    if (section) {
+      const sections = this.showSections;
+      for(const item of this.sidePanelTitles) {
+        if (item == section)
+          sections[item] = true;
+        else
+          sections[item] = false;
+      }
+      this.UpdateShowSections(sections);
+    }
   }
 
   public getFileDetails(): void {
