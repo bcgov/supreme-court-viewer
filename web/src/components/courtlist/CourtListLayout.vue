@@ -295,7 +295,6 @@ const civilState = namespace("CivilFileInformation");
 import "@store/modules/CriminalFileInformation";
 import { criminalCourtListType } from "@/types/courtlist/jsonTypes";
 const criminalState = namespace("CriminalFileInformation");
-import CivilProvidedDocumentsView from "@components/civil/CivilProvidedDocumentsView.vue";
 
 enum HearingType {
   "A" = "+",
@@ -307,8 +306,7 @@ enum HearingType {
 @Component({
   components: {
     CivilAppearanceDetails,
-    CriminalAppearanceDetails,
-    CivilProvidedDocumentsView
+    CriminalAppearanceDetails
   },
 })
 export default class CourtListLayout extends Vue {
@@ -317,9 +315,6 @@ export default class CourtListLayout extends Vue {
 
   @civilState.State
   public civilAppearanceInfo!: civilAppearanceInfoType;
-
-  @civilState.State
-  public civilFileInformation!: civilFileInformationType;
 
   @criminalState.State
   public criminalAppearanceInfo!: criminalAppearanceInfoType;
