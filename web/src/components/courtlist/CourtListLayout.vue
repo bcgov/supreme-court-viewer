@@ -170,13 +170,13 @@
           </b-badge>
         </template>
 
-        <template v-slot:cell(providedDocs)="data">
+        <template v-slot:cell(providedDocuments)="data">
           <b-button
             :style="data.field.cellStyle"
             size="sm"
             :variant="'outline-primary border-white text-' + data.item.listClass"
             class="mr-2"
-            @click="OpenCivilFilePageProvidedDocs(data)"
+            @click="OpenCivilFilePageprovidedDocuments(data)"
           >
             <b-icon-file-earmark-text
               :variant="data.item.listClass"
@@ -401,8 +401,8 @@ export default class CourtListLayout extends Vue {
       cellStyle: "margin-top: 3px; font-size: 16px; font-weight:normal;",
     },
     {
-      key: "providedDocs",
-      label: "Provided Docs",
+      key: "providedDocuments",
+      label: "Provided Documents",
       tdClass: "border-top",
       cellStyle: "margin-top: 3px; font-size: 16px; font-weight:normal;",
     },
@@ -788,7 +788,7 @@ export default class CourtListLayout extends Vue {
     window.open(routeData.href, "_blank");
   }
 
-  public OpenCivilFilePageProvidedDocs(data) {
+  public OpenCivilFilePageprovidedDocuments(data) {
     const fileInformation = {} as civilFileInformationType;
     fileInformation.fileNumber = data.item.fileId;
     this.UpdateCivilFile(fileInformation);
