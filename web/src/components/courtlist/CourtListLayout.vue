@@ -174,15 +174,12 @@
           <b-button
             :style="data.field.cellStyle"
             size="sm"
-            :id="data.item.listClass + 'case-' + data.item.tag"
-            :href="'#' + data.item.listClass + 'case-' + data.item.tag"
-            @click="OpenCivilFilePageProvidedDocs(data)"
             :variant="'outline-primary border-white text-' + data.item.listClass"
             class="mr-2"
+            @click="OpenCivilFilePageProvidedDocs(data)"
           >
             <b-icon-file-earmark-text
               :variant="data.item.listClass"
-              v-if="!data.item['_showDetails']"
             ></b-icon-file-earmark-text>
           </b-button>
         </template>
