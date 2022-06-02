@@ -178,9 +178,11 @@
             class="mr-2"
             @click="OpenCivilFilePageprovidedDocuments(data)"
           >
-            <b-icon-file-earmark-text
-              :variant="data.item.listClass"
-            ></b-icon-file-earmark-text>
+            <b-dropdown
+              :variant="data.field.cellStyle">
+              <b-dropdown-item href="#">An item</b-dropdown-item>
+              <b-dropdown-item href="#">Another item</b-dropdown-item>
+            </b-dropdown>
           </b-button>
         </template>
 
@@ -435,6 +437,7 @@ export default class CourtListLayout extends Vue {
 
   mounted() {
     this.getCourtList();
+    // you were gunna check if this can populate something for the dropdown rather than onclick
   }
 
   public getCourtList(): void {
@@ -789,17 +792,18 @@ export default class CourtListLayout extends Vue {
   }
 
   public OpenCivilFilePageprovidedDocuments(data) {
-    const fileInformation = {} as civilFileInformationType;
-    fileInformation.fileNumber = data.item.fileId;
-    this.UpdateCivilFile(fileInformation);
-    const routeData = this.$router.resolve({
-      name: "CivilCaseDetails",
-      params: {
-        fileNumber: fileInformation.fileNumber,
-        section: "Provided Documents"
-      },
-    });
-    window.open(routeData.href, "_blank");
+    console.log("data", data);
+    this.$http
+      .get("api/files/civil/" + data.item.fileId)
+      .then(
+        (Response) => Response.json()
+      )
+      .then((data) => {
+        if (data) {
+          const test = data.referenceDocument;
+          console.log("test", test);
+        }
+      });
   }
 
   public getFullCounsel(counselDesc) {
