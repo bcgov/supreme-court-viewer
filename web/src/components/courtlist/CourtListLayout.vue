@@ -455,17 +455,13 @@ export default class CourtListLayout extends Vue {
   }
 
   public async getCourtList() {
-    const start = new Date().getTime();
-
     const data = this.courtListInformation.detailsData;
     this.civilCourtListJson = data.civilCourtList;
     this.courtRoom = data.courtRoomCode;
     this.ExtractCivilListInfo();
     this.criminalCourtListJson = data.criminalCourtList;
     this.ExtractCriminalListInfo();
-    console.log("pre build");
     await this.BuildReferenceDocsList();
-    console.log("post build");
     this.fields = JSON.parse(JSON.stringify(this.initialFields));
     if (this.criminalCourtListJson.length == 0) {
       this.fields.splice(4, 1);
@@ -477,9 +473,6 @@ export default class CourtListLayout extends Vue {
       this.isDataReady = true;
     }
     this.isMounted = true;
-    const end = new Date().getTime();
-    const time = end - start;
-    console.log("Total Load time:", time / 1000);
   }
 
   public ExtractCriminalListInfo(): void {
@@ -833,10 +826,8 @@ export default class CourtListLayout extends Vue {
     }
 
     await Promise.all(promises).then((values) => {
-      console.log("Promise values:", values);
       this.referenceDocs = values;
     });
-    console.log("post promise");
   }
 
   public getReferenceDocs(fileId: string): Promise<any> {
