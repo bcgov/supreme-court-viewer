@@ -376,6 +376,7 @@ export default class CourtListLayout extends Vue {
   isDataReady = false;
   showNotes = false;
   notes = { remarks: [], text: "", trialNotes: "", fileComment: "", commentToJudge: "", sheriffComment: "" };
+  physicalIds: string[] = [];
   referenceDocs: any[] = [];
 
   initialFields = [
@@ -454,12 +455,17 @@ export default class CourtListLayout extends Vue {
   }
 
   public async getCourtList() {
+    const start = new Date().getTime();
+
     const data = this.courtListInformation.detailsData;
     this.civilCourtListJson = data.civilCourtList;
     this.courtRoom = data.courtRoomCode;
-    await this.ExtractCivilListInfo();
+    this.ExtractCivilListInfo();
     this.criminalCourtListJson = data.criminalCourtList;
     this.ExtractCriminalListInfo();
+    console.log("pre build");
+    await this.BuildReferenceDocsList();
+    console.log("post build");
     this.fields = JSON.parse(JSON.stringify(this.initialFields));
     if (this.criminalCourtListJson.length == 0) {
       this.fields.splice(4, 1);
@@ -471,6 +477,9 @@ export default class CourtListLayout extends Vue {
       this.isDataReady = true;
     }
     this.isMounted = true;
+    const end = new Date().getTime();
+    const time = end - start;
+    console.log("Total Load time:", time / 1000);
   }
 
   public ExtractCriminalListInfo(): void {
@@ -614,7 +623,7 @@ export default class CourtListLayout extends Vue {
     else return { name: nameOfAccused, trunc: false };
   }
 
-  public async ExtractCivilListInfo() {
+  public ExtractCivilListInfo(): void {
     const familyListClass = ["F", "E"];
     const civilListClass = ["I", "B", "V", "D", "H", "P", "S"];
     /* 
@@ -691,7 +700,7 @@ export default class CourtListLayout extends Vue {
       if (civilListInfo.counselDesc) civilListInfo.counselDesc += civilListInfo.counsel;
 
       civilListInfo.fileId = jcivilList.physicalFile.physicalFileID;
-      this.referenceDocs.push(await this.UpdateReferenceDocs(civilListInfo.fileId));
+      this.physicalIds.push(jcivilList.physicalFile.physicalFileID);
       civilListInfo.appearanceId = jcivilList.appearanceId;
 
       civilListInfo.fileMarkers = [];
@@ -817,8 +826,21 @@ export default class CourtListLayout extends Vue {
     shared.openDocumentsPdf(CourtDocumentType.ProvidedCivil, target.doc[0]);
   }
 
-  public UpdateReferenceDocs(fileId) {
-    return new Promise(resolve => {
+  public async BuildReferenceDocsList() {
+    const promises: Promise<any>[] = [];
+    for (const physicalId of this.physicalIds) {
+      promises.push(this.getReferenceDocs(physicalId));
+    }
+
+    await Promise.all(promises).then((values) => {
+      console.log("Promise values:", values);
+      this.referenceDocs = values;
+    });
+    console.log("post promise");
+  }
+
+  public getReferenceDocs(fileId: string): Promise<any> {
+    return new Promise<any>(resolve => {
       this.$http
         .get(`api/files/civil/${fileId}`)
         .then(
