@@ -129,7 +129,7 @@ namespace Scv.Api.Services.Files
             return fileDetails;
         }
 
-        public async Task<RedactedCivilFileDetailResponse> FileIdAsync(string fileId, bool isVcUser)
+        public async Task<RedactedCivilFileDetailResponse> FileIdAsync(string fileId, bool isVcUser, bool isStaff)
         {
             async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, fileId);
             async Task<CivilFileContent> FileContent() => await _filesClient.FilesCivilFilecontentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode,null, null, null, null, fileId);
@@ -323,7 +323,7 @@ namespace Scv.Api.Services.Files
                 document.FiledBy = documentFromFileContent?.FiledBy;
                 document.Category = _lookupService.GetDocumentCategory(document.DocumentTypeCd);
                 document.DocumentTypeDescription = await _lookupService.GetDocumentDescriptionAsync(document.DocumentTypeCd);
-                document.ImageId = document.SealedYN != "N" ? null : document.ImageId;
+                document.ImageId = (document.SealedYN == "Y" && isStaff) ? null : document.ImageId;
                 document.NextAppearanceDt = document.Appearance?.Where(app => DateTime.TryParse(app?.AppearanceDate, out DateTime appearanceDate) && appearanceDate >= DateTime.Today).FirstOrDefault()?.AppearanceDate;
                 document.Appearance = null;
                 document.SwornByNm = documentFromFileContent.SwornByNm;

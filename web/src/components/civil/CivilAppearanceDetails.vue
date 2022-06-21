@@ -56,7 +56,7 @@
 
                 <template v-slot:cell(documentType)="data">
                   <b-button
-                    v-if="data.item.pdfAvail && !data.item.sealed"
+                    v-if="data.item.pdfAvail"
                     variant="outline-primary text-info"
                     :style="data.field.cellStyle"
                     @click="documentClick(data)"
@@ -67,7 +67,7 @@
                   <span
                     class="ml-2"
                     :style="data.field.cellLabelStyle"
-                    v-else-if="!data.item.pdfAvail && !data.item.sealed"
+                    v-else-if="!data.item.pdfAvail"
                   >
                     {{ data.value }}
                   </span>
@@ -488,8 +488,6 @@ export default class CivilAppearanceDetails extends Vue {
           this.appearanceDetailsJson = data;
           this.ExtractAppearanceDetailsInfo();
           const element = document.getElementById(this.tagcasename);
-          // console.log(this.tagcasename)
-          // console.log(element)
           if (element != null)
             setTimeout(() => {
               element.scrollIntoView();

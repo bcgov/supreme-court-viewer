@@ -118,12 +118,14 @@ namespace Scv.Api.Controllers
                 userType = "idir";
             else if (HttpContext.User.IsVcUser())
                 userType = "vc";
-            else 
+            else
                 userType = "judiciary";
 
             return Ok(new
             {
                 UserType = userType,
+                Role = HttpContext.User.Role(),
+                SubRole = HttpContext.User.SubRole(),
                 IsSupremeUser = HttpContext.User.IsSupremeUser(),
                 EnableArchive = false,
                 DateTime.UtcNow

@@ -66,5 +66,7 @@ export interface CourtRoomsInfo {
 
 export interface UserInfo {
     userType: string;
+    role: string;
+    subRole: string;
     isSupremeUser: string;
 }

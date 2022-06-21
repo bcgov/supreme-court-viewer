@@ -374,7 +374,7 @@ namespace tests.api.Controllers
         [Fact]
         public async void Civil_Appearances_by_PhysicalFileId()
         {
-            var civilFile = await _service.Civil.FileIdAsync("2506", false);
+            var civilFile = await _service.Civil.FileIdAsync("2506", false, false);
 
             Assert.Equal("0", civilFile.Appearances.FutureRecCount);
             Assert.Equal("20", civilFile.Appearances.HistoryRecCount);
