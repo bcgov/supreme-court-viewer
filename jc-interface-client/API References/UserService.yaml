@@ -5,7 +5,7 @@
     version: "0.0.2"
   servers: []
   paths: 
-    /user/getParticipantInfo: 
+    /user/getUserLogin: 
       get: 
         responses: 
           200: 
@@ -13,7 +13,7 @@
             content: 
               application/json: 
                 schema: 
-                  $ref: "#/components/schemas/getParticipantInfoResponse"
+                  $ref: "#/components/schemas/getUserLoginResponseType"
           404: 
             description: ""
             content: 
@@ -22,29 +22,75 @@
                   example: 
                     message: "No items matching the given criteria were found."
         description: "Gets the participant id for a specific domain, user guid and userid. \n"
-        operationId: "GET_user-getParticipantInfo"
+        operationId: "GET_user-getUserLogin"
         parameters: 
           - 
-            name: "guid"
+            name: "domainNm"
             in: "header"
-            description: "The guid of the user"
+            description: "The domain name of the user"
+            schema: 
+              type: "string"
+          - 
+            name: "domainUserGuid"
+            in: "header"
+            required: true
+            description: "The user guid of the user"
+            schema: 
+              type: "string"
+          - 
+            name: "domainUserId"
+            in: "header"
+            description: "The user id of the user"
+            schema: 
+              type: "string"
+          - 
+            name: "deviceNm"
+            in: "header"
+            description: "The device name"
+            schema: 
+              type: "string"
+          - 
+            name: "ipAddressTxt"
+            in: "header"
+            description: "Ip address"
+            schema: 
+              type: "string"
+          - 
+            name: "temporaryAccessGuid"
+            in: "header"
+            description: "Temporary access guid"
             schema: 
               type: "string"
   components: 
     schemas: 
-      getParticipantInfoResponse: 
+      loginHistory: 
         type: "object"
         properties: 
-          partID: 
+          loginDtm: 
             type: "string"
-          agenID: 
+          loginDayOfWeek: 
             type: "string"
-          roleCd: 
+          deviceNm: 
             type: "string"
-          subRoleCd: 
+          ipAddressTxt: 
             type: "string"
-          errorMsg: 
+      getUserLoginResponseType: 
+        type: "object"
+        properties: 
+          responseCd: 
             type: "string"
+          responseMessageTxt: 
+            type: "string"
+          userPartId: 
+            type: "string"
+          userDefaultAgencyCd: 
+            type: "string"
+          userNm: 
+            type: "string"
+          loginHistory: 
+            type: "array"
+            items: 
+              $ref: "#/components/schemas/loginHistory"
     responses: {}
     parameters: {}
     examples: {}
@@ -56,4 +102,3 @@
         scheme: "basic"
     links: {}
     callbacks: {}
-

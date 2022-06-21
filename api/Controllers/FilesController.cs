@@ -90,7 +90,7 @@ namespace Scv.Api.Controllers
             if (User.IsVcUser() && !await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
                 return Forbid();
 
-            var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
+            var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser());
             if (civilFileDetailResponse?.PhysicalFileId == null)
                 throw new NotFoundException("Couldn't find civil file with this id.");
 
@@ -118,7 +118,7 @@ namespace Scv.Api.Controllers
                 if(!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
                     return Forbid();
 
-                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
+                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser());
                 if (civilFileDetailResponse?.PhysicalFileId == null)
                     throw new NotFoundException("Couldn't find civil file with this id.");
                 if (civilFileDetailResponse.SealedYN != "N")
@@ -152,7 +152,7 @@ namespace Scv.Api.Controllers
                 if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, vcCivilFileId))
                     return Forbid();
 
-                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(vcCivilFileId, User.IsVcUser(), User.IsStaff());
+                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(vcCivilFileId, User.IsVcUser());
                 if (civilFileDetailResponse?.PhysicalFileId == null)
                     throw new NotFoundException("Couldn't find civil file with this id.");
                 if (civilFileDetailResponse.SealedYN != "N")
@@ -280,7 +280,7 @@ namespace Scv.Api.Controllers
                 if (isCriminal)
                     return Forbid();
 
-                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
+                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser());
                 if (civilFileDetailResponse?.PhysicalFileId == null)
                     throw new NotFoundException("Couldn't find civil file with this id.");
 
@@ -306,7 +306,7 @@ namespace Scv.Api.Controllers
                 if (archiveRequest.RopRequests.Any() || archiveRequest.DocumentRequests.Any(dr => dr.IsCriminal))
                     return Forbid();
 
-                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(archiveRequest.VcCivilFileId, User.IsVcUser(), User.IsStaff());
+                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(archiveRequest.VcCivilFileId, User.IsVcUser());
                 if (civilFileDetailResponse?.PhysicalFileId == null)
                     throw new NotFoundException("Couldn't find civil file with this id.");
 

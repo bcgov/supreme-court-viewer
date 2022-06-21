@@ -28,19 +28,24 @@ namespace Scv.Api.Services
         }
         #endregion
 
-        public async Task<GetParticipantInfoResponse> GetUserInfo(UserInfoRequest userInfoRequest)
+        public async Task<GetUserLoginResponseType> GetUserInfo(UserInfoRequest userInfoRequest)
         {
             try 
             {
-                var response = await UserServiceClient.UserGetParticipantInfoAsync(userInfoRequest.DomainUserGuid);
+                var response = await UserServiceClient.UserGetuserloginAsync(userInfoRequest.DomainName,
+                    userInfoRequest.DomainUserGuid,
+                    userInfoRequest.DomainUserId,
+                    userInfoRequest.DeviceName,
+                    userInfoRequest.IpAddress,
+                    userInfoRequest.TemporaryAccessGuid);
 
-                if (response.ErrorMsg == null)
+                if (response.ResponseCd != "1")
                 {
-                    response.AgenID = string.IsNullOrEmpty(response.AgenID) ? SupremeAgencyId : response.AgenID;
-                    Logger.LogDebug($"SMGOV_USERGUID: {userInfoRequest.DomainUserGuid}, UserAgencyCd: {response.AgenID}, UserPartId: {response.PartID}");
+                    response.UserDefaultAgencyCd = string.IsNullOrEmpty(response.UserDefaultAgencyCd) ? SupremeAgencyId : response.UserDefaultAgencyCd;
+                    Logger.LogDebug($"SMGOV_USERGUID: {userInfoRequest.DomainUserGuid}, UserAgencyCd: {response.UserDefaultAgencyCd}, UserPartId: {response.UserPartId}");
                     return response;
                 }
-                Logger.LogInformation("Return failed from getParticipantInfo");
+                Logger.LogInformation("Returned responseCd = 1 (failed) from getUserLogin");
                 return null;
             }
             catch (Exception e)
