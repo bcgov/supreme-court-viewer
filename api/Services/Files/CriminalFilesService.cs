@@ -459,7 +459,7 @@ namespace Scv.Api.Services.Files
 
         public async Task<RopResponse> RecordOfProceedingsAsync(string partId, string profSequenceNumber, CourtLevelCd courtLevelCode, CourtClassCd courtClassCode)
         {
-            return await _filesClient.FilesRecordofproceedingsAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, partId, profSequenceNumber, courtLevelCode, courtClassCode);
+            return await _filesClient.FilesRecordOfProceedingsAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, partId, profSequenceNumber, courtLevelCode, courtClassCode);
         }
 
         private async Task<ICollection<CriminalCharges>> PopulateCharges(ICollection<CriminalAppearanceCount> appearanceCount)

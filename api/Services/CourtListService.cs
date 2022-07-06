@@ -62,7 +62,7 @@ namespace Scv.Api.Services
 
             async Task<CourtList> CourtList() => await _filesClient.FilesCourtlistAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyId, roomCode, proceedingDateString, divisionCode, fileNumber);
             async Task<CourtCalendarDetailByDay> CourtCalendarDetailByDay() =>
-                await _filesClient.FilesCourtcalendardetailsbydayAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyCode,
+                await _filesClient.FilesCourtCalendarDetailsByDayAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyCode,
                     proceeding.ToString("yyyy-MM-dd HH:mm:ss.f"), roomCode);
 
             var courtCalendarDetailsTask = _cache.GetOrAdd($"CourtCalendarDetails-{agencyId}-{roomCode}-{proceedingDateString}-{fileNumber}-{_requestAgencyIdentifierId}",

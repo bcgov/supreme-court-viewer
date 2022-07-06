@@ -174,7 +174,7 @@ namespace tests.api.Controllers
             /* This is the largest civil file on dev. Unfortunately if the WSDL changes for this route, 
              * it will always return back 200, but a null file. It would have been nice if the server 
              * would return 500 etc on errors. */
-            var result = await _fileServicesClient.FilesCivilFilecontentAsync(_agencyIdentifierId, _partId, "SCV",null, null, null, null, "2222");
+            var result = await _fileServicesClient.FilesCivilFilecontentAsync(_agencyIdentifierId, _partId, "SCV", null, null, null, null, "2222");
             Assert.NotNull(result);
         }
 

@@ -62,7 +62,8 @@ namespace Scv.Api.Services.Files
 
         public async Task<FileResponse> DocumentAsync(string documentId, bool isCriminal, string physicalFileId)
         {
-            return await _filesClient.FilesDocumentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, documentId, isCriminal ? "R" : "I", physicalFileId, flatten: false);
+            var loggingId = Guid.NewGuid().ToString();
+            return await _filesClient.FilesDocumentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, loggingId, documentId, isCriminal ? "R" : "I", physicalFileId, flatten: false);
         }
 
         #endregion Courtlist & Document

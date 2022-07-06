@@ -246,6 +246,13 @@
             schema: 
               type: string
           - 
+            name: "loggingId"
+            in: "header"
+            required: true
+            description: "Logging ID for request tracking"
+            schema: 
+              type: string
+          - 
             name: "documentId"
             in: "query"
             required: true
