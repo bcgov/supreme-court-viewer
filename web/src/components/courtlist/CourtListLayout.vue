@@ -24,6 +24,37 @@
           </b-badge>
         </template>
 
+        <template v-slot:cell(providedDocuments)="data">
+          <div
+            class="text-center"
+          >
+            <b-button
+              v-if="countReferenceDocs(data) == 1"
+              :style="data.field.cellStyle"
+              size="sm"
+              :variant="'outline-primary border-white text-' + data.item.listClass"
+              class="mr-2"
+              @click="downloadProvidedDocument(data)"
+            >
+              <b-icon-file-earmark-text
+                :variant="data.item.listClass"
+              ></b-icon-file-earmark-text>
+            </b-button>
+            <b-button
+              v-else-if="countReferenceDocs(data) > 1"
+              :style="data.field.cellStyle"
+              size="sm"
+              :variant="'outline-primary border-white text-' + data.item.listClass"
+              class="mr-2"
+              @click="OpenCivilFilePageProvidedDocuments(data)"
+            >
+              <b-icon-files
+                :variant="data.item.listClass"
+              ></b-icon-files>
+            </b-button>
+          </div>
+        </template>
+
         <template v-slot:cell(fileNumber)="data">
           <b-button
             :style="data.field.cellStyle"
@@ -168,33 +199,6 @@
           >
             {{ data.value }}
           </b-badge>
-        </template>
-
-        <template v-slot:cell(providedDocuments)="data">
-          <b-button
-            v-if="countReferenceDocs(data) == 1"
-            :style="data.field.cellStyle"
-            size="sm"
-            :variant="'outline-primary border-white text-' + data.item.listClass"
-            class="mr-2"
-            @click="downloadProvidedDocument(data)"
-          >
-            <b-icon-file-earmark-text
-              :variant="data.item.listClass"
-            ></b-icon-file-earmark-text>
-          </b-button>
-          <b-button
-            v-else-if="countReferenceDocs(data) > 1"
-            :style="data.field.cellStyle"
-            size="sm"
-            :variant="'outline-primary border-white text-' + data.item.listClass"
-            class="mr-2"
-            @click="OpenCivilFilePageProvidedDocuments(data)"
-          >
-            <b-icon-files
-              :variant="data.item.listClass"
-            ></b-icon-files>
-          </b-button>
         </template>
 
         <template v-slot:cell(fileMarkers)="data">
@@ -386,6 +390,12 @@ export default class CourtListLayout extends Vue {
       tdClass: "border-top",
       cellStyle: "font-weight: normal; font-size: 16px; padding-top:8px",
     },
+    {
+      key: "providedDocuments",
+      label: "Provided Documents",
+      tdClass: "border-top",
+      cellStyle: "margin-top: 3px; font-size: 16px; font-weight:normal;",
+    },
     { key: "fileNumber", label: "File Number", tdClass: "border-top", cellStyle: "font-size:16px" },
     {
       key: "icons",
@@ -414,12 +424,6 @@ export default class CourtListLayout extends Vue {
     {
       key: "counsel",
       label: "Counsel",
-      tdClass: "border-top",
-      cellStyle: "margin-top: 3px; font-size: 16px; font-weight:normal;",
-    },
-    {
-      key: "providedDocuments",
-      label: "Provided Documents",
       tdClass: "border-top",
       cellStyle: "margin-top: 3px; font-size: 16px; font-weight:normal;",
     },
