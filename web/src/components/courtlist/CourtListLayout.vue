@@ -392,7 +392,7 @@ export default class CourtListLayout extends Vue {
     },
     {
       key: "providedDocuments",
-      label: "Provided Documents",
+      label: "Prov. Docs",
       tdClass: "border-top",
       cellStyle: "margin-top: 3px; font-size: 16px; font-weight:normal;",
     },
