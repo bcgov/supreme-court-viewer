@@ -24,37 +24,6 @@
           </b-badge>
         </template>
 
-        <template v-slot:cell(providedDocuments)="data">
-          <div
-            class="text-center"
-          >
-            <b-button
-              v-if="countReferenceDocs(data) == 1"
-              :style="data.field.cellStyle"
-              size="sm"
-              :variant="'outline-primary border-white text-' + data.item.listClass"
-              class="mr-2"
-              @click="downloadProvidedDocument(data)"
-            >
-              <b-icon-file-earmark-text
-                :variant="data.item.listClass"
-              ></b-icon-file-earmark-text>
-            </b-button>
-            <b-button
-              v-else-if="countReferenceDocs(data) > 1"
-              :style="data.field.cellStyle"
-              size="sm"
-              :variant="'outline-primary border-white text-' + data.item.listClass"
-              class="mr-2"
-              @click="OpenCivilFilePageProvidedDocuments(data)"
-            >
-              <b-icon-files
-                :variant="data.item.listClass"
-              ></b-icon-files>
-            </b-button>
-          </div>
-        </template>
-
         <template v-slot:cell(fileNumber)="data">
           <b-button
             :style="data.field.cellStyle"
@@ -158,6 +127,37 @@
         <template v-slot:cell(time)="data">
           <div :style="data.field.cellStyle">
             {{ data.value | convert_time }}
+          </div>
+        </template>
+
+        <template v-slot:cell(providedDocuments)="data">
+          <div
+            class="text-center"
+          >
+            <b-button
+              v-if="countReferenceDocs(data) == 1"
+              :style="data.field.cellStyle"
+              size="sm"
+              :variant="'outline-primary border-white text-' + data.item.listClass"
+              class="mr-2"
+              @click="downloadProvidedDocument(data)"
+            >
+              <b-icon-file-earmark-text
+                :variant="data.item.listClass"
+              ></b-icon-file-earmark-text>
+            </b-button>
+            <b-button
+              v-else-if="countReferenceDocs(data) > 1"
+              :style="data.field.cellStyle"
+              size="sm"
+              :variant="'outline-primary border-white text-' + data.item.listClass"
+              class="mr-2"
+              @click="OpenCivilFilePageProvidedDocuments(data)"
+            >
+              <b-icon-files
+                :variant="data.item.listClass"
+              ></b-icon-files>
+            </b-button>
           </div>
         </template>
 
@@ -468,10 +468,10 @@ export default class CourtListLayout extends Vue {
     await this.BuildReferenceDocsList();
     this.fields = JSON.parse(JSON.stringify(this.initialFields));
     if (this.criminalCourtListJson.length == 0) {
-      this.fields.splice(4, 1);
+      this.fields.splice(5, 1);
     }
     if (this.civilCourtListJson.length == 0) {
-      this.fields.splice(3, 1);
+      this.fields.splice(4, 1);
     }
     if (this.courtList.length) {
       this.isDataReady = true;
