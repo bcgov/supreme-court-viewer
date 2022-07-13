@@ -69,19 +69,6 @@
           </b-badge>
         </template>
 
-        <template v-slot:cell(icons)="data">
-          <b-badge
-            variant="white border-white outline-white"
-            class="mr-1 mt-1"
-            v-for="(field, index) in data.value"
-            :key="index"
-            v-b-tooltip.hover.top
-            :title="field.desc"
-          >
-            <b-icon :icon="field.icon" font-scale="1.25"> </b-icon>
-          </b-badge>
-        </template>
-
         <template v-slot:cell(accused)="data">
           <b-button
             v-if="data.item.listClass == 'criminal'"
@@ -102,7 +89,7 @@
             v-if="data.item.listClass != 'criminal' && data.value.length > 0"
             :style="data.field.cellStyle"
             size="sm"
-            @click="OpenCivilFilePage(data)"
+            @click="OpenCivilFilePage(data, 'All Documents')"
             v-b-tooltip.hover.right
             :title="data.item.partiesTruncApplied ? data.item.partiesDesc : null"
             :variant="'outline-primary border-white text-' + data.item.listClass"
@@ -114,7 +101,7 @@
             v-else-if="data.item.listClass != 'criminal' && data.value.length == 0"
             :style="data.field.cellStyle"
             size="sm"
-            @click="OpenCivilFilePage(data)"
+            @click="OpenCivilFilePage(data, 'All Documents')"
             v-b-tooltip.hover.right
             :title="data.item.partiesTruncApplied ? data.item.partiesDesc : null"
             :variant="'outline-primary border-white text-' + data.item.listClass"
@@ -152,7 +139,7 @@
               size="sm"
               :variant="'outline-primary border-white text-' + data.item.listClass"
               class="mr-2"
-              @click="OpenCivilFilePageProvidedDocuments(data)"
+              @click="OpenCivilFilePage(data, 'Provided Documents')"
             >
               <b-icon-files
                 :variant="data.item.listClass"
@@ -397,13 +384,6 @@ export default class CourtListLayout extends Vue {
       cellStyle: "margin-top: 3px; font-size: 16px; font-weight:normal;",
     },
     { key: "fileNumber", label: "File Number", tdClass: "border-top", cellStyle: "font-size:16px" },
-    {
-      key: "icons",
-      label: "Icons",
-      tdClass: "border-top",
-      cellStyle: "font-weight: normal; font-size: 16px; padding-top:9px",
-      thClass: "text-white",
-    },
     { key: "parties", label: "Parties", tdClass: "border-top", cellStyle: "font-size:16px; font-weight: bold;" },
     { key: "accused", label: "Accused", tdClass: "border-top", cellStyle: "font-size:16px; font-weight: bold;" },
 
@@ -468,10 +448,10 @@ export default class CourtListLayout extends Vue {
     await this.BuildReferenceDocsList();
     this.fields = JSON.parse(JSON.stringify(this.initialFields));
     if (this.criminalCourtListJson.length == 0) {
-      this.fields.splice(5, 1);
+      this.fields.splice(4, 1);
     }
     if (this.civilCourtListJson.length == 0) {
-      this.fields.splice(4, 1);
+      this.fields.splice(3, 1);
     }
     if (this.courtList.length) {
       this.isDataReady = true;
@@ -797,19 +777,6 @@ export default class CourtListLayout extends Vue {
     }
   }
 
-  public OpenCivilFilePage(data) {
-    const fileInformation = {} as civilFileInformationType;
-    fileInformation.fileNumber = data.item.fileId;
-    this.UpdateCivilFile(fileInformation);
-    const routeData = this.$router.resolve({
-      name: "CivilCaseDetails",
-      params: {
-        fileNumber: fileInformation.fileNumber
-      },
-    });
-    window.open(routeData.href, "_blank");
-  }
-
   public countReferenceDocs(data) {
     if (data?.item?.fileId) {
       const target = this.referenceDocs.find(doc => doc["fileId"] === data.item.fileId);
@@ -871,13 +838,20 @@ export default class CourtListLayout extends Vue {
     })
   }
 
-  public OpenCivilFilePageProvidedDocuments(data) {
+  public OpenCivilFilePage(data, section = "") {
+    let params;
+    if (section) {
+      params = {
+        fileNumber: data.item.fileId,
+        section: section
+      };
+    } else {
+      params = { fileNumber: data.item.fileId };
+    }
+
     const routeData = this.$router.resolve({
       name: "CivilCaseDetails",
-      params: {
-        fileNumber: data.item.fileId,
-        section: "Provided Documents"
-      },
+      params: params,
     });
     window.open(routeData.href, "_blank");
   }
