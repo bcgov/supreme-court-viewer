@@ -246,10 +246,10 @@
             schema: 
               type: string
           - 
-            name: "loggingId"
+            name: "requestTrackingId"
             in: "header"
             required: true
-            description: "Logging ID for request tracking"
+            description: "Request tracking ID"
             schema: 
               type: string
           - 
