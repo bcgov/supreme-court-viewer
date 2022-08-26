@@ -416,28 +416,27 @@ namespace JCCommon.Clients.FileServices
         /// <param name="requestAgencyIdentifierId">Requesting Agency Identifier</param>
         /// <param name="requestPartId">Requesting Participant Id</param>
         /// <param name="applicationCd">The code for the calling application</param>
-        /// <param name="requestTrackingId">Request tracking ID</param>
+        /// <param name="correlationId">Request tracking ID</param>
         /// <param name="documentId">cfcAccusedFile.document array element's imageId, or cvfcCivilFile document array element's imageId</param>
         /// <param name="courtDivisionCd">R for criminal, I for non-criminal</param>
         /// <param name="fileId">Physical File Id (CEIS) or Justin No (JUSTIN)</param>
         /// <param name="flatten">Flatten file</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileResponse> FilesDocumentAsync(string requestAgencyIdentifierId, string requestPartId, string applicationCd, string requestTrackingId, string documentId, string courtDivisionCd, string fileId, bool? flatten)
+        public virtual System.Threading.Tasks.Task<FileResponse> FilesDocumentAsync(string requestAgencyIdentifierId, string requestPartId, string applicationCd, string documentId, string courtDivisionCd, string fileId, bool? flatten)
         {
-            return FilesDocumentAsync(requestAgencyIdentifierId, requestPartId, applicationCd, requestTrackingId, documentId, courtDivisionCd, fileId, flatten, System.Threading.CancellationToken.None);
+            return FilesDocumentAsync(requestAgencyIdentifierId, requestPartId, applicationCd, documentId, courtDivisionCd, fileId, flatten, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <param name="requestAgencyIdentifierId">Requesting Agency Identifier</param>
         /// <param name="requestPartId">Requesting Participant Id</param>
         /// <param name="applicationCd">The code for the calling application</param>
-        /// <param name="requestTrackingId">Request tracking ID</param>
         /// <param name="documentId">cfcAccusedFile.document array element's imageId, or cvfcCivilFile document array element's imageId</param>
         /// <param name="courtDivisionCd">R for criminal, I for non-criminal</param>
         /// <param name="fileId">Physical File Id (CEIS) or Justin No (JUSTIN)</param>
         /// <param name="flatten">Flatten file</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileResponse> FilesDocumentAsync(string requestAgencyIdentifierId, string requestPartId, string applicationCd, string requestTrackingId, string documentId, string courtDivisionCd, string fileId, bool? flatten, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileResponse> FilesDocumentAsync(string requestAgencyIdentifierId, string requestPartId, string applicationCd, string documentId, string courtDivisionCd, string fileId, bool? flatten, System.Threading.CancellationToken cancellationToken)
         {
             if (documentId == null)
                 throw new System.ArgumentNullException("documentId");
@@ -477,10 +476,10 @@ namespace JCCommon.Clients.FileServices
                     if (applicationCd == null)
                         throw new System.ArgumentNullException("applicationCd");
                     request_.Headers.TryAddWithoutValidation("applicationCd", ConvertToString(applicationCd, System.Globalization.CultureInfo.InvariantCulture));
-
-                    if (requestTrackingId == null)
-                        throw new System.ArgumentNullException("requestTrackingId");
-                    request_.Headers.TryAddWithoutValidation("requestTrackingId", ConvertToString(requestTrackingId, System.Globalization.CultureInfo.InvariantCulture));
+                    
+                    var correlationId = System.Guid.NewGuid().ToString();
+                    request_.Headers.TryAddWithoutValidation("correlationId", ConvertToString(correlationId, System.Globalization.CultureInfo.InvariantCulture));
+                    
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/octet-stream"));
 
@@ -553,6 +552,7 @@ namespace JCCommon.Clients.FileServices
         /// <param name="requestAgencyIdentifierId">Requesting Agency Identifier</param>
         /// <param name="requestPartId">Requesting Participant Id</param>
         /// <param name="applicationCd">The code for the calling application</param>
+        /// <param name="correlationId">Request tracking ID</param>
         /// <param name="fileHomeAgencyId">File home Agency Identifier; the Justin Agency ID.  Equates to a location code.</param>
         /// <param name="filePermissions">A list of one or more of the courtClassCd codes indicating the files to which the requesting user has permissions.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -565,6 +565,7 @@ namespace JCCommon.Clients.FileServices
         /// <param name="requestAgencyIdentifierId">Requesting Agency Identifier</param>
         /// <param name="requestPartId">Requesting Participant Id</param>
         /// <param name="applicationCd">The code for the calling application</param>
+        /// <param name="correlationId">Request tracking ID</param>
         /// <param name="fileHomeAgencyId">File home Agency Identifier; the Justin Agency ID.  Equates to a location code.</param>
         /// <param name="filePermissions">A list of one or more of the courtClassCd codes indicating the files to which the requesting user has permissions.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -668,6 +669,9 @@ namespace JCCommon.Clients.FileServices
                     if (applicationCd == null)
                         throw new System.ArgumentNullException("applicationCd");
                     request_.Headers.TryAddWithoutValidation("applicationCd", ConvertToString(applicationCd, System.Globalization.CultureInfo.InvariantCulture));
+
+                    var correlationId = System.Guid.NewGuid().ToString();
+                    request_.Headers.TryAddWithoutValidation("correlationId", ConvertToString(correlationId, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -1286,6 +1290,7 @@ namespace JCCommon.Clients.FileServices
         /// <param name="requestAgencyIdentifierId">Requesting Agency Identifier</param>
         /// <param name="requestPartId">Requesting Participant Id</param>
         /// <param name="applicationCd">The code for the calling application</param>
+        /// <param name="correlationId">Request tracking ID</param>
         /// <param name="fileHomeAgencyId">File home Agency Identifier; the Justin Agency ID.  Equates to a location code.</param>
         /// <param name="filePermissions">A list of one or more of the courtClassCd codes indicating the files to which the requesting user has permissions.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -1298,6 +1303,7 @@ namespace JCCommon.Clients.FileServices
         /// <param name="requestAgencyIdentifierId">Requesting Agency Identifier</param>
         /// <param name="requestPartId">Requesting Participant Id</param>
         /// <param name="applicationCd">The code for the calling application</param>
+        /// <param name="correlationId">Request tracking ID</param>
         /// <param name="fileHomeAgencyId">File home Agency Identifier; the Justin Agency ID.  Equates to a location code.</param>
         /// <param name="filePermissions">A list of one or more of the courtClassCd codes indicating the files to which the requesting user has permissions.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -1401,6 +1407,9 @@ namespace JCCommon.Clients.FileServices
                     if (applicationCd == null)
                         throw new System.ArgumentNullException("applicationCd");
                     request_.Headers.TryAddWithoutValidation("applicationCd", ConvertToString(applicationCd, System.Globalization.CultureInfo.InvariantCulture));
+
+                    var correlationId = System.Guid.NewGuid().ToString();
+                    request_.Headers.TryAddWithoutValidation("correlationId", ConvertToString(correlationId, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -4413,6 +4422,9 @@ namespace JCCommon.Clients.FileServices
 
         [Newtonsoft.Json.JsonProperty("appearanceReason", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AppearanceReason { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("adjudicatorComment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string AdjudicatorComment { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 

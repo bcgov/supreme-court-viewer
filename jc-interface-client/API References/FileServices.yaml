@@ -246,7 +246,7 @@
             schema: 
               type: string
           - 
-            name: "requestTrackingId"
+            name: "correlationId"
             in: "header"
             required: true
             description: "Request tracking ID"
@@ -319,6 +319,13 @@
             in: "header"
             required: true
             description: "The code for the calling application"
+            schema: 
+              type: string
+          - 
+            name: "correlationId"
+            in: "header"
+            required: true
+            description: "Request tracking ID"
             schema: 
               type: string
           - 
@@ -725,6 +732,13 @@
             in: "header"
             required: true
             description: "The code for the calling application"
+            schema: 
+              type: string
+          - 
+            name: "correlationId"
+            in: "header"
+            required: true
+            description: "Request tracking ID"
             schema: 
               type: string
           - 
@@ -2312,6 +2326,8 @@
           courtRoom: 
             type: string
           appearanceReason: 
+            type: string
+          adjudicatorComment:
             type: string
       cvfcPartyInterest: 
         type: object
