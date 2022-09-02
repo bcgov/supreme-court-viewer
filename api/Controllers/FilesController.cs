@@ -289,7 +289,10 @@ namespace Scv.Api.Controllers
                     return Forbid();
             }
 
-            var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId);
+            var correlationId = Guid.NewGuid().ToString();
+            _logger.LogInformation("Request Tracking - CorrelationId: {0} Start Time: {1}", correlationId, DateTime.Now);
+            var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId, correlationId);
+            _logger.LogInformation("Request Tracking - CorrelationId: {0} End Time: {1}", correlationId, DateTime.Now);
             return File(documentResponse.Stream, "application/pdf");
         }
 
