@@ -422,9 +422,9 @@ namespace JCCommon.Clients.FileServices
         /// <param name="fileId">Physical File Id (CEIS) or Justin No (JUSTIN)</param>
         /// <param name="flatten">Flatten file</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileResponse> FilesDocumentAsync(string requestAgencyIdentifierId, string requestPartId, string applicationCd, string documentId, string courtDivisionCd, string fileId, bool? flatten)
+        public virtual System.Threading.Tasks.Task<FileResponse> FilesDocumentAsync(string requestAgencyIdentifierId, string requestPartId, string applicationCd, string documentId, string courtDivisionCd, string fileId, bool? flatten, string correlationId)
         {
-            return FilesDocumentAsync(requestAgencyIdentifierId, requestPartId, applicationCd, documentId, courtDivisionCd, fileId, flatten, System.Threading.CancellationToken.None);
+            return FilesDocumentAsync(requestAgencyIdentifierId, requestPartId, applicationCd, documentId, courtDivisionCd, fileId, flatten, correlationId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -436,7 +436,7 @@ namespace JCCommon.Clients.FileServices
         /// <param name="fileId">Physical File Id (CEIS) or Justin No (JUSTIN)</param>
         /// <param name="flatten">Flatten file</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileResponse> FilesDocumentAsync(string requestAgencyIdentifierId, string requestPartId, string applicationCd, string documentId, string courtDivisionCd, string fileId, bool? flatten, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileResponse> FilesDocumentAsync(string requestAgencyIdentifierId, string requestPartId, string applicationCd, string documentId, string courtDivisionCd, string fileId, bool? flatten, string correlationId, System.Threading.CancellationToken cancellationToken)
         {
             if (documentId == null)
                 throw new System.ArgumentNullException("documentId");
@@ -477,8 +477,8 @@ namespace JCCommon.Clients.FileServices
                         throw new System.ArgumentNullException("applicationCd");
                     request_.Headers.TryAddWithoutValidation("applicationCd", ConvertToString(applicationCd, System.Globalization.CultureInfo.InvariantCulture));
                     
-                    var correlationId = System.Guid.NewGuid().ToString();
-                    request_.Headers.TryAddWithoutValidation("correlationId", ConvertToString(correlationId, System.Globalization.CultureInfo.InvariantCulture));
+                    if (correlationId != null)
+                        request_.Headers.TryAddWithoutValidation("correlationId", ConvertToString(correlationId, System.Globalization.CultureInfo.InvariantCulture));
                     
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/octet-stream"));
