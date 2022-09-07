@@ -26,6 +26,7 @@ using Scv.Api.Services.EF;
 using Scv.Db.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using ColeSoft.Extensions.Logging.Splunk;
 
 namespace Scv.Api
 {
@@ -49,6 +50,11 @@ namespace Scv.Api
                 {
                     c.DisableColors = true;
                     c.TimestampFormat = "[yyyy-MM-dd HH:mm:ss.fff] ";
+                });
+
+                options.AddSplunk(c => {
+                    c.SplunkCollectorUrl = Configuration.GetNonEmptyValue("SplunkCollectorUrl");
+                    c.AuthenticationToken = Configuration.GetNonEmptyValue("SplunkToken");
                 });
             });
 
