@@ -289,13 +289,23 @@ namespace Scv.Api.Controllers
                     return Forbid();
             }
 
+            String pacificZone;
+            try
+            {
+                pacificZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time").Id;
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                pacificZone = TimeZoneInfo.FindSystemTimeZoneById("America/Vancouver").Id;
+            }
+
             var correlationId = Guid.NewGuid().ToString();
-            var start = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Pacific Standard Time");
+            var start = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
             _logger.LogInformation("Request Tracking - CorrelationId: {0} Start Time: {1}", correlationId, start);
 
             var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId, correlationId);
 
-            var end = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Pacific Standard Time");
+            var end = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
             var duration = end.Subtract(start).TotalSeconds;
             _logger.LogInformation("Request Tracking - CorrelationId: {0} End Time: {1} Duration: {2}s", correlationId, end, duration);
 
