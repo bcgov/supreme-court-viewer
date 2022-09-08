@@ -290,9 +290,15 @@ namespace Scv.Api.Controllers
             }
 
             var correlationId = Guid.NewGuid().ToString();
-            _logger.LogInformation("Request Tracking - CorrelationId: {0} Start Time: {1}", correlationId, DateTime.Now);
+            var start = DateTime.Now.ToLocalTime();
+            _logger.LogInformation("Request Tracking - CorrelationId: {0} Start Time: {1}", correlationId, start);
+
             var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId, correlationId);
-            _logger.LogInformation("Request Tracking - CorrelationId: {0} End Time: {1}", correlationId, DateTime.Now);
+
+            var end = DateTime.Now.ToLocalTime();
+            var duration = end.Subtract(start).TotalSeconds;
+            _logger.LogInformation("Request Tracking - CorrelationId: {0} End Time: {1} Duration: {2}s", correlationId, end, duration);
+
             return File(documentResponse.Stream, "application/pdf");
         }
 
