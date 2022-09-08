@@ -290,12 +290,12 @@ namespace Scv.Api.Controllers
             }
 
             var correlationId = Guid.NewGuid().ToString();
-            var start = DateTime.Now.ToLocalTime();
+            var start = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Pacific Standard Time");
             _logger.LogInformation("Request Tracking - CorrelationId: {0} Start Time: {1}", correlationId, start);
 
             var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId, correlationId);
 
-            var end = DateTime.Now.ToLocalTime();
+            var end = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Pacific Standard Time");
             var duration = end.Subtract(start).TotalSeconds;
             _logger.LogInformation("Request Tracking - CorrelationId: {0} End Time: {1} Duration: {2}s", correlationId, end, duration);
 
