@@ -163,6 +163,7 @@ const commonState = namespace("CommonInformation");
 import CustomOverlay from "../CustomOverlay.vue";
 import shared from "../shared";
 import { ArchiveInfoType, DocumentRequestsInfoType } from "@/types/common";
+import { uuid } from 'vue-uuid';
 enum fieldTab {
   Categories = 0,
 }
@@ -251,6 +252,7 @@ export default class CivilProvidedDocumentsView extends Vue {
 
   public getDocuments(): void {
     this.documents = this.civilFileInformation.referenceDocumentInfo;
+    this.setDocumentCorrelationId();
     this.categories = this.civilFileInformation.providedDocumentCategories;
     this.categories.sort();
     if (this.categories.indexOf("ALL") < 0) this.categories.unshift("ALL");
@@ -262,6 +264,12 @@ export default class CivilProvidedDocumentsView extends Vue {
       this.isDataReady = true;
     }
     this.isMounted = true;
+  }
+
+  public setDocumentCorrelationId(): void {
+    for (const idx in this.documents) {
+      this.documents[idx].correlationId = uuid.v4();
+    }
   }
 
   mounted() {
@@ -382,6 +390,7 @@ export default class CivilProvidedDocumentsView extends Vue {
       fileNumberText: this.civilFileInformation.detailsData.fileNumberTxt,
       partyName: eventData.item.partyName,
       location: this.civilFileInformation.detailsData.homeLocationAgencyName,
+      correlationId: eventData.item.correlationId
     };
     shared.openDocumentsPdf(CourtDocumentType.ProvidedCivil, documentData);
     this.loadingPdf = false;

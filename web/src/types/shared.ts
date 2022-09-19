@@ -12,6 +12,7 @@ export interface DocumentData {
     partId?: string;
     partyName?: string;
     profSeqNo?: string;
+    correlationId?: string;
 }
 
 export enum CourtDocumentType {

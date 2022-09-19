@@ -1,4 +1,5 @@
 import { CourtDocumentType, DocumentData } from "@/types/shared";
+import { splunkLog } from "@/utils/utils";
 import base64url from "base64url";
 
 export default {
@@ -8,6 +9,12 @@ export default {
     const documentId = documentData.documentId
       ? base64url(documentData.documentId)
       : documentData.documentId;
+
+    // specify pacific time for tracking
+    const start = new Date().toLocaleString("en-US", {
+      timeZone: "America/Vancouver"
+    });
+        
     switch (documentType) {
       case CourtDocumentType.CSR:
         window.open(
@@ -20,8 +27,9 @@ export default {
         );
         break;
       default:
+        splunkLog(`Request Tracking - CorrelationId: ${documentData.correlationId} Front End Start time: ${start}`);
         window.open(
-          `${process.env.BASE_URL}api/files/document/${documentId}/${encodeURIComponent(fileName)}?isCriminal=${isCriminal}&fileId=${documentData.fileId}`
+          `${process.env.BASE_URL}api/files/document/${documentId}/${encodeURIComponent(fileName)}?isCriminal=${isCriminal}&fileId=${documentData.fileId}&CorrelationId=${documentData.correlationId}`
         );
         break;
     }

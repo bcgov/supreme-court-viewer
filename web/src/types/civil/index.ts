@@ -37,8 +37,9 @@ export interface documentsInfoType {
     orderMadeDate?: string;
     filedByName: string[];
     dateGranted: string;
-    isChecked:boolean;
-    isEnabled:boolean;
+    isChecked: boolean;
+    isEnabled: boolean;
+    correlationId?: string;
 }
 
 export interface referenceDocumentsInfoType {
@@ -52,7 +53,8 @@ export interface referenceDocumentsInfoType {
     referenceDocumentTypeDsc: string;
     objectGuid: string;
     isChecked: boolean;
-    isEnabled: boolean
+    isEnabled: boolean;
+    correlationId?: string;
 }
 
 export interface summaryDocumentsInfoType {

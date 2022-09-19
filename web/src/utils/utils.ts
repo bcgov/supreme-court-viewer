@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { Logger as SplunkLogger } from 'splunk-logging';
 
 export const SessionManager = {
     getSettings: async function(store) {
@@ -16,3 +17,22 @@ export const SessionManager = {
         }
     }
 }
+
+export const splunkLog = (message) => {
+    debugger;
+    const config = {
+        token: process.env["SPLUNK_TOKEN"],
+        url: process.env["SPLUNK_COLLECTOR_URL"]
+    };
+  
+    const Logger = new SplunkLogger(config);
+  
+    const payload = {
+        message: message
+    };
+  
+    //console.log("Sending payload", payload);
+    Logger.send(payload, (err, resp, body)=> {
+        console.log("Response from Splunk", body);
+    });
+  };
