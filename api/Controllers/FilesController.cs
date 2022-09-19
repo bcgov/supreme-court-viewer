@@ -266,10 +266,11 @@ namespace Scv.Api.Controllers
         /// <param name="fileNameAndExtension">Name of the file and extension.</param>
         /// <param name="isCriminal">True if Criminal, False if Civil</param>
         /// <param name="fileId"></param>
+        /// <param name="correlationId"></param>
         /// <returns>DocumentResponse</returns>
         [HttpGet]
         [Route("document/{documentId}/{fileNameAndExtension}")]
-        public async Task<IActionResult> GetDocument(string documentId, string fileNameAndExtension, bool isCriminal, string fileId)
+        public async Task<IActionResult> GetDocument(string documentId, string fileNameAndExtension, bool isCriminal, string fileId, string correlationId)
         {
             documentId = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(documentId));
             if (User.IsVcUser())
@@ -299,7 +300,6 @@ namespace Scv.Api.Controllers
                 pacificZone = TimeZoneInfo.FindSystemTimeZoneById("America/Vancouver").Id;
             }
 
-            var correlationId = Guid.NewGuid().ToString();
             var start = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
             _logger.LogInformation("Request Tracking - CorrelationId: {0} Start Time: {1}", correlationId, start);
 
