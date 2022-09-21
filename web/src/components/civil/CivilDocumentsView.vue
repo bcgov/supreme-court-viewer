@@ -165,7 +165,7 @@ import CustomOverlay from "../CustomOverlay.vue";
 import { ArchiveInfoType, DocumentRequestsInfoType } from "@/types/common";
 import shared from "../shared";
 import { CourtDocumentType, DocumentData } from "@/types/shared";
-import { uuid } from 'vue-uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 enum fieldTab {
   Categories = 0,
@@ -486,7 +486,7 @@ export default class CivilDocumentsView extends Vue {
   public setDocumentCorrelationId(): void {
     for (const idx in this.documents) {
       if (this.documents[idx].pdfAvail) {
-        this.documents[idx].correlationId = uuid.v4();
+        this.documents[idx].correlationId = uuidv4();
       }
     }
   }

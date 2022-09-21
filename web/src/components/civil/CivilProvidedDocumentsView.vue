@@ -163,7 +163,7 @@ const commonState = namespace("CommonInformation");
 import CustomOverlay from "../CustomOverlay.vue";
 import shared from "../shared";
 import { ArchiveInfoType, DocumentRequestsInfoType } from "@/types/common";
-import { uuid } from 'vue-uuid';
+import { v4 as uuidv4 } from 'uuid';
 enum fieldTab {
   Categories = 0,
 }
@@ -268,7 +268,7 @@ export default class CivilProvidedDocumentsView extends Vue {
 
   public setDocumentCorrelationId(): void {
     for (const idx in this.documents) {
-      this.documents[idx].correlationId = uuid.v4();
+      this.documents[idx].correlationId = uuidv4();
     }
   }
 
