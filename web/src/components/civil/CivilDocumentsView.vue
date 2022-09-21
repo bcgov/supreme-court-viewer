@@ -505,9 +505,6 @@ export default class CivilDocumentsView extends Vue {
   public cellClick(eventData) {
     this.loadingPdf = true;
     const documentType = eventData.value == "CourtSummary" ? CourtDocumentType.CSR : CourtDocumentType.Civil;
-    console.log("Document Type:", documentType);
-    console.log("event data:", eventData);
-    console.log("civil file info  :", this.civilFileInformation);
     const documentData: DocumentData = {
       appearanceDate: eventData.item.appearanceDate,
       appearanceId: eventData.item.appearanceId,
