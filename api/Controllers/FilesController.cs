@@ -301,13 +301,13 @@ namespace Scv.Api.Controllers
             }
 
             var start = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
-            _logger.LogInformation("Request Tracking - CorrelationId: {0} Start Time: {1}", correlationId, start);
+            _logger.LogInformation("Request Tracking - API request to Mule - CorrelationId: {0} Start time: {1}", correlationId, start);
 
             var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId, correlationId);
 
             var end = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
             var duration = end.Subtract(start).TotalSeconds;
-            _logger.LogInformation("Request Tracking - CorrelationId: {0} End Time: {1} Duration: {2}s", correlationId, end, duration);
+            _logger.LogInformation("Request Tracking - Mule response received - CorrelationId: {0} End time: {1} Duration: {2}s", correlationId, end, duration);
 
             return File(documentResponse.Stream, "application/pdf");
         }

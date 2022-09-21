@@ -9,11 +9,6 @@ export default {
     const documentId = documentData.documentId
       ? base64url(documentData.documentId)
       : documentData.documentId;
-
-    // specify pacific time for tracking
-    const start = new Date().toLocaleString("en-US", {
-      timeZone: "America/Vancouver"
-    });
         
     switch (documentType) {
       case CourtDocumentType.CSR:
@@ -27,9 +22,9 @@ export default {
         );
         break;
       default:
-        splunkLog(`Request Tracking - CorrelationId: ${documentData.correlationId} Front End Start time: ${start}`);
-        window.open(
-          `${process.env.BASE_URL}api/files/document/${documentId}/${encodeURIComponent(fileName)}?isCriminal=${isCriminal}&fileId=${documentData.fileId}&CorrelationId=${documentData.correlationId}`
+        this.openRequestedTab(
+          `${process.env.BASE_URL}api/files/document/${documentId}/${encodeURIComponent(fileName)}?isCriminal=${isCriminal}&fileId=${documentData.fileId}&CorrelationId=${documentData.correlationId}`,
+          documentData.correlationId
         );
         break;
     }
@@ -51,9 +46,37 @@ export default {
       case CourtDocumentType.CivilZip:
         return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.fileNumberText}-documents.zip`
       case CourtDocumentType.CriminalZip:
-          return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.courtClass}-${documentData.fileNumberText}-documents.zip`
+        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.courtClass}-${documentData.fileNumberText}-documents.zip`
       default:
         throw Error(`No file structure for type: ${documentType}`);
     }
   },
+
+  openRequestedTab(url, correlationId) {
+    const start = new Date();
+    const startStr = start.toLocaleString("en-US", {
+      timeZone: "America/Vancouver"
+    });
+    const startMsg = `Request Tracking - Frontend request to API - CorrelationId: ${correlationId} Start time: ${startStr}`;
+    //console.log(startMsg);
+    splunkLog(startMsg);
+
+    const windowObjectReference = window.open(url);
+    if (windowObjectReference !== null) {
+      const end = new Date();
+      const endStr = start.toLocaleString("en-US", {
+        timeZone: "America/Vancouver"
+      });
+
+      const duration = (end.getTime() - start.getTime()) / 1000;
+      const endMsg = `Request Tracking - API response received - CorrelationId: ${correlationId} End time: ${endStr} Duration: ${duration}s`;
+
+      windowObjectReference.onload = (event) => {
+        if (windowObjectReference.document.readyState === "complete") {
+          //console.log(endMsg);
+          splunkLog(endMsg);
+        }
+      };
+    }
+  }
 };

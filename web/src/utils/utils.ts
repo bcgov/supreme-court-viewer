@@ -19,20 +19,22 @@ export const SessionManager = {
 }
 
 export const splunkLog = (message) => {
-    debugger;
-    const config = {
-        token: process.env["SPLUNK_TOKEN"],
-        url: process.env["SPLUNK_COLLECTOR_URL"]
-    };
-  
-    const Logger = new SplunkLogger(config);
-  
-    const payload = {
-        message: message
-    };
-  
-    //console.log("Sending payload", payload);
-    Logger.send(payload, (err, resp, body)=> {
-        console.log("Response from Splunk", body);
-    });
+    const token = process.env["SPLUNK_TOKEN"] || "";
+    const url = process.env["SPLUNK_COLLECTOR_URL"] || "";
+
+    if (token && url) {
+        const config = {
+            token: token,
+            url: url
+        };
+    
+        const Logger = new SplunkLogger(config);
+        const payload = {
+            message: message
+        };
+    
+        Logger.send(payload, (err, resp, body)=> {
+            console.log("Response from Splunk", body);
+        });
+    }
   };
