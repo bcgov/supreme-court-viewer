@@ -39,7 +39,6 @@ export interface documentsInfoType {
     dateGranted: string;
     isChecked: boolean;
     isEnabled: boolean;
-    correlationId?: string;
 }
 
 export interface referenceDocumentsInfoType {
@@ -54,7 +53,6 @@ export interface referenceDocumentsInfoType {
     objectGuid: string;
     isChecked: boolean;
     isEnabled: boolean;
-    correlationId?: string;
 }
 
 export interface summaryDocumentsInfoType {
