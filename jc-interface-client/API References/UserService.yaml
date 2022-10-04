@@ -5,6 +5,62 @@
     version: "0.0.2"
   servers: []
   paths: 
+    /user/getUserLogin:
+      get: 
+        responses: 
+          200: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  $ref: "#/components/schemas/getUserLoginResponseType"
+          404: 
+            description: ""
+            content: 
+              application/json: 
+                schema: 
+                  example: 
+                    message: "No items matching the given criteria were found."
+        description: "Gets the participant id for a specific domain, user guid and userid. \n"
+        operationId: "GET_user-getUserLogin"
+        parameters: 
+          - 
+            name: "domainNm"
+            in: "header"
+            description: "The domain name of the user"
+            schema: 
+              type: "string"
+          - 
+            name: "domainUserGuid"
+            in: "header"
+            required: true
+            description: "The user guid of the user"
+            schema: 
+              type: "string"
+          - 
+            name: "domainUserId"
+            in: "header"
+            description: "The user id of the user"
+            schema: 
+              type: "string"
+          - 
+            name: "deviceNm"
+            in: "header"
+            description: "The device name"
+            schema: 
+              type: "string"
+          - 
+            name: "ipAddressTxt"
+            in: "header"
+            description: "Ip address"
+            schema: 
+              type: "string"
+          - 
+            name: "temporaryAccessGuid"
+            in: "header"
+            description: "Temporary access guid"
+            schema: 
+              type: "string"
     /user/getUserLogin: 
       get: 
         responses: 

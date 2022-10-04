@@ -65,7 +65,7 @@
 
             <template v-slot:[`cell(${fields[fieldsTab][documentPlace[fieldsTab]].key})`]="data">
               <b-button
-                v-if="data.item.pdfAvail && !data.item.sealed"
+                v-if="data.item.pdfAvail"
                 variant="outline-primary text-info"
                 :style="data.field.cellStyle"
                 @click="cellClick(data)"

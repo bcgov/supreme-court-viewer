@@ -30,7 +30,7 @@ namespace Scv.Api.Services
 
         public async Task<GetUserLoginResponseType> GetUserInfo(UserInfoRequest userInfoRequest)
         {
-            try 
+            try
             {
                 var response = await UserServiceClient.UserGetuserloginAsync(userInfoRequest.DomainName,
                     userInfoRequest.DomainUserGuid,
