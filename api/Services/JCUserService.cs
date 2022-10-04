@@ -32,7 +32,7 @@ namespace Scv.Api.Services
         {
             try 
             {
-                var response = await UserServiceClient.UserGetuserloginAsync(userInfoRequest.DomainName,
+                var response = await UserServiceClient.UserGetUserLoginAsync(userInfoRequest.DomainName,
                     userInfoRequest.DomainUserGuid,
                     userInfoRequest.DomainUserId,
                     userInfoRequest.DeviceName,
