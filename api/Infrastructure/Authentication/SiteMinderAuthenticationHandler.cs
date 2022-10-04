@@ -41,17 +41,17 @@ namespace Scv.Api.Infrastructure.Authentication
 
             if (siteMinderUserGuidHeader == null || siteMinderUserTypeHeader == null)
                 return AuthenticateResult.NoResult();
-            
+
             if (siteMinderUserTypeHeader != ValidSiteMinderUserType)
                 return AuthenticateResult.Fail("Invalid SiteMinder UserType Header.");
 
             var authenticatedBySiteMinderPreviously = Context.User.Identity.AuthenticationType == SiteMinder;
             var applicationCode = Context.User.ApplicationCode();
-            var participantId = Context.User.ParticipantId(); 
+            var participantId = Context.User.ParticipantId();
             var agencyCode = Context.User.AgencyCode();
             var isSupremeUser = Context.User.IsSupremeUser();
 
-            if (!authenticatedBySiteMinderPreviously)
+            if (!authenticatedBySiteMinderPreviously || role == null || subRole == null)
             {
                 var request = new UserInfoRequest
                 {
