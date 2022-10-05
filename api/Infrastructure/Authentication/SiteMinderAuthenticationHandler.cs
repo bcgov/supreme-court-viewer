@@ -51,7 +51,7 @@ namespace Scv.Api.Infrastructure.Authentication
             var agencyCode = Context.User.AgencyCode();
             var isSupremeUser = Context.User.IsSupremeUser();
 
-            if (!authenticatedBySiteMinderPreviously || role == null || subRole == null)
+            if (!authenticatedBySiteMinderPreviously)
             {
                 var request = new UserInfoRequest
                 {

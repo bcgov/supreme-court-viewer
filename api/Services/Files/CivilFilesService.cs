@@ -129,7 +129,7 @@ namespace Scv.Api.Services.Files
             return fileDetails;
         }
 
-        public async Task<RedactedCivilFileDetailResponse> FileIdAsync(string fileId, bool isVcUser, bool isStaff)
+        public async Task<RedactedCivilFileDetailResponse> FileIdAsync(string fileId, bool isVcUser)
         {
             async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, fileId);
             async Task<CivilFileContent> FileContent() => await _filesClient.FilesCivilFilecontentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, null, null, null, null, fileId);
@@ -158,7 +158,7 @@ namespace Scv.Api.Services.Files
 
             var fileContentCivilFile = fileContent?.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
             detail.Party = await PopulateDetailParties(detail.Party);
-            detail.Document = await PopulateDetailDocuments(detail.Document, fileContentCivilFile, isVcUser, isStaff);
+            detail.Document = await PopulateDetailDocuments(detail.Document, fileContentCivilFile, isVcUser);
             detail.HearingRestriction = await PopulateDetailHearingRestrictions(fileDetail.HearingRestriction);
             if (isVcUser) { 
                 //SCV-266 - Disable comments for VC Users.
@@ -313,7 +313,7 @@ namespace Scv.Api.Services.Files
             return detail;
         }
 
-        private async Task<IList<CivilDocument>> PopulateDetailDocuments(IList<CivilDocument> documents, CvfcCivilFile civilFileContent, bool isVcUser, bool isStaff)
+        private async Task<IList<CivilDocument>> PopulateDetailDocuments(IList<CivilDocument> documents, CvfcCivilFile civilFileContent, bool isVcUser)
         {
             //Populate extra fields for document.
             documents = documents.WhereToList(doc => !isVcUser || !_filterOutDocumentTypes.Contains(doc.DocumentTypeCd));
@@ -323,7 +323,7 @@ namespace Scv.Api.Services.Files
                 document.FiledBy = documentFromFileContent?.FiledBy;
                 document.Category = _lookupService.GetDocumentCategory(document.DocumentTypeCd);
                 document.DocumentTypeDescription = await _lookupService.GetDocumentDescriptionAsync(document.DocumentTypeCd);
-                document.ImageId = (document.SealedYN == "Y" && isStaff) ? null : document.ImageId;
+                document.ImageId = document.SealedYN != "N" ? null : document.ImageId;
                 document.NextAppearanceDt = document.Appearance?.Where(app => DateTime.TryParse(app?.AppearanceDate, out DateTime appearanceDate) && appearanceDate >= DateTime.Today).FirstOrDefault()?.AppearanceDate;
                 document.Appearance = null;
                 document.SwornByNm = documentFromFileContent.SwornByNm;
