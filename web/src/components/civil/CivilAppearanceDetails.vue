@@ -56,7 +56,7 @@
 
                 <template v-slot:cell(documentType)="data">
                   <b-button
-                    v-if="data.item.pdfAvail"
+                    v-if="data.item.pdfAvail && !data.item.sealed"
                     variant="outline-primary text-info"
                     :style="data.field.cellStyle"
                     @click="documentClick(data)"
@@ -67,7 +67,7 @@
                   <span
                     class="ml-2"
                     :style="data.field.cellLabelStyle"
-                    v-else-if="!data.item.pdfAvail"
+                    v-else-if="!data.item.pdfAvail && !data.item.sealed"
                   >
                     {{ data.value }}
                   </span>
