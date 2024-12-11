@@ -1,0 +1,72 @@
+name: Web
+
+on:
+  workflow_dispatch:
+env:
+  IMAGE_NAME: web
+  WORKING_DIRECTORY: ./
+jobs:
+  builds:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to Artifactory
+        uses: docker/login-action@v1
+        with:
+          registry: artifacts.developer.gov.bc.ca
+          username: ${{ secrets.ARTIFACTORY_USERNAME }}
+          password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+
+      - name: Checkout Repo        
+        uses: actions/checkout@v4                            
+
+      # Get SHORT_SHA to tag images
+      - name: Get short SHA
+        id: short_sha
+        run: |
+          echo "::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)"
+          echo "Short SHA: $SHORT_SHA"
+          
+      - name: Docker Build Image
+        run: |          
+          docker build --tag nginx-runtime -f docker/nginx-runtime/Dockerfile ./docker/nginx-runtime/
+          cd web
+          docker build --tag ss-web-artifacts -f Dockerfile.node . --build-arg WEB_BASE_HREF=${{ vars.WEB_BASE_HREF }}
+          cd ..
+          docker build --tag ${{ env.IMAGE_NAME }} -f docker/vue-on-nginx/Dockerfile ./docker/vue-on-nginx/
+          docker tag ${{ env.IMAGE_NAME }} artifacts.developer.gov.bc.ca/sb3c-images/${{ env.IMAGE_NAME }}:dev-${{ steps.short_sha.outputs.SHORT_SHA }}
+          docker push artifacts.developer.gov.bc.ca/sb3c-images/${{ env.IMAGE_NAME }}:dev-${{ steps.short_sha.outputs.SHORT_SHA }}
+      
+      - name: Checkout ArgoCD Repo
+        id: gitops
+        uses: actions/checkout@v4
+        with:
+          repository: bcgov-c/tenant-gitops-b3c707
+          ref: develop
+          token: ${{ secrets.GIT_OPS_SSH_KEY }} # `GH_PAT` is a secret that contains your PAT
+          path: gitops
+
+      - name: Update Helm Values and Commit
+        id: helm
+        if: steps.gitops.outcome == 'success'  # Only run if the previous step (publish) was successful
+        run: |
+          # Clone the GitOps deployment configuration repository
+          # Navigate to the directory containing your Helm values file for the environment develop -> DEV, test -> test and 
+          cd gitops/charts
+
+          # Update the Helm values file with the new image tag and version
+          DATETIME=$(date +'%Y-%m-%d %H:%M:%S')  # Get current date and time
+
+          sed -i "s/webtag: .*/webtag: dev-${{ steps.short_sha.outputs.SHORT_SHA }} # Image Updated on $DATETIME/" ../deploy/dev_values.yaml
+
+          sed -i "s/webtag: .*/webtag: dev-${{ steps.short_sha.outputs.SHORT_SHA }} # Image Updated on $DATETIME/" web/values.yaml
+          
+          # Commit and push the changes
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          
+          git add .
+          
+          git add ../deploy/dev_values.yaml
+          git commit -m "Update Dev Web image tag"
+          git push origin develop  # Update the branch name as needed
