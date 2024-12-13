@@ -62,12 +62,13 @@ USER 104
 ###################################################################################
 # 2. Build web-artifacts
 ###################################################################################
-FROM registry.access.redhat.com/ubi9/nodejs-${NODE_VERSION} AS artifacts
+# Update to later nodejs version when application is upgrade to Vue 2.7 or later. The centos version has python2 installed which is required for the current application version.
+# FROM registry.access.redhat.com/ubi9/nodejs-${NODE_VERSION} AS artifacts 
+FROM registry.hub.docker.com/centos/nodejs-12-centos7 AS artifacts
 ARG NODE_VERSION
 ARG WEB_SRC
 ARG NPM_INSTALL_ARGS
 
-USER root
 WORKDIR /opt/app-root/src
 
 # Copy package.json and package-lock.json
@@ -76,7 +77,7 @@ COPY ${WEB_SRC}/package*.json .
 # Install packages
 RUN npm install ${NPM_INSTALL_ARGS}
 
-# Copy the rest of the code
+# Copy the source code
 COPY ${WEB_SRC} .
 
 RUN npm run build 

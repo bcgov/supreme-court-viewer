@@ -1,8 +1,7 @@
 version: "3.4"
 services:
-
   web:
-    image: scv-web
+    image: "${COMPOSE_PROJECT_NAME}-web"
     environment:
       - API_URL=${API_URL}
       - USE_SELF_SIGNED_SSL=${USE_SELF_SIGNED_SSL}
@@ -16,8 +15,8 @@ services:
       - api
 
   api:
-    image: scv-api
-    environment: 
+    image: "${COMPOSE_PROJECT_NAME}-api"
+    environment:
       - ASPNETCORE_URLS=${ASPNETCORE_URLS}
       - FileServicesClient__Username=${FileServicesClientUsername}
       - FileServicesClient__Password=${FileServicesClientPassword}
@@ -53,14 +52,20 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./seed:/opt/app-root/data
+      - ${LOCAL_WORKSPACE_FOLDER-..}/api/:/opt/app-root/src/api
+      - ${LOCAL_WORKSPACE_FOLDER-..}/db/:/opt/app-root/src/db
+      - ${LOCAL_WORKSPACE_FOLDER-..}/jc-interface-client/:/opt/app-root/src/jc-interface-client
+      - ${LOCAL_WORKSPACE_FOLDER-..}/pcss-client/:/opt/app-root/src/pcss-client
+      - api-dev-bin:/opt/app-root/src/api/bin
+      - api-dev-obj:/opt/app-root/src/api/obj
+      - ${LOCAL_WORKSPACE_FOLDER-.}/seed:/opt/app-root/data
     depends_on:
       - db
     command: >
       /bin/bash -c "
         echo Waiting for the database service to start up ...;
         sleep 10;
-        /usr/libexec/s2i/run;"
+        dotnet watch run --project /opt/app-root/src/api/api.csproj --urls='http://+:5000';"
 
   db:
     image: centos/postgresql-12-centos8
@@ -72,4 +77,8 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./tmp:/tmp2
+      - ${LOCAL_WORKSPACE_FOLDER-.}/tmp:/tmp2
+
+volumes:
+  api-dev-bin:
+  api-dev-obj:

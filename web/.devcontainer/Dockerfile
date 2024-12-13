@@ -7,7 +7,7 @@ ENV WEB_BASE_HREF='/scjscv/'
 ENV API_URL='http://host.docker.internal:5000/api/'
 ENV RealIpFrom='172.17.0.1'
 ENV NODE_ENV='development'
-ENV SHELL /bin/bash
+ENV SHELL=/bin/bash
 
 # Required for HTTP Basic feature
 RUN apt-get update -y && \

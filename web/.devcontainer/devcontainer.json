@@ -53,6 +53,5 @@
 	"remoteUser": "www-data",
 	"features": {
 		"git": "latest"
-	},
-	"postStartCommand": "/usr/libexec/s2i/fix-base-url"
+	}
 }
