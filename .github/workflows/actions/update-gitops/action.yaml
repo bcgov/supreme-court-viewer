@@ -1,0 +1,71 @@
+name: Update gitops
+description: Update the gitops tenant repository with the latest image tag
+
+inputs:
+  environment:
+    type: choice
+    description: The deployment environment to update (dev, test, prod)
+    required: true
+    default: dev
+    options:
+      - dev:
+          description: Development environment
+      - test:
+          description: Test environment
+      - prod:
+          description: Production environment
+  licence_plate:
+    type: string
+    description: The OpenShift licence plate
+    required: true
+  gitops_branch:
+    type: string
+    description: The branch to update standard branches for tenant-gitops (develop, test, prod)
+    required: true
+  tag:
+    type: string
+    description: The image tag to update
+    required: true
+  yaml_paths:
+    type: string
+    description: space separated list of paths to the Helm values files to update
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - name: Checkout ArgoCD Repo
+      id: gitops
+      uses: actions/checkout@v4
+      with:
+        repository: bcgov-c/tenant-gitops-${{ inputs.licence_plate }}
+        ref: ${{ inputs.gitops_branch }}
+        token: ${{ secrets.GIT_OPS_SSH_KEY }} # `GH_PAT` is a secret that contains your PAT
+        path: gitops
+
+    - name: Update Helm Values and Commit
+      id: helm
+      if: steps.gitops.outcome == 'success'
+      run: |
+        # Navigate to the directory containing your Helm values file for the environment develop -> DEV, test -> test and 
+        cd gitops/charts
+
+        # Update the Helm values file with the new image tag and version
+        DATETIME=$(date +'%Y-%m-%d %H:%M:%S')  # Get current date and time
+
+        # Split incoming yaml_paths by space into an array and loop through each path update the image tag in each file
+        IFS=' ' read -r -a paths <<< "${{ inputs.yaml_paths }}"
+        for path in "${paths[@]}"; do
+          sed -i "s/${{ inputs.tag }}: .*/${{ inputs.tag }}: ${{ inputs.environment }}-${{ steps.short_sha.outputs.SHORT_SHA }} # Image Updated on $DATETIME/" $path
+        done
+
+        # Commit and push the changes
+        git config --global user.email "actions@github.com"
+        git config --global user.name "GitHub Actions"
+
+        # Stage the changes in both the current and parent directories
+        git add . ..
+
+        git commit -m "Update API image tag"
+        git push origin ${{ inputs.gitops_branch }}
