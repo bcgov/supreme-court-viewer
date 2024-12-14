@@ -5,19 +5,23 @@ on:
 env:
   IMAGE_NAME: api
   WORKING_DIRECTORY: ./
+  GITOPS_BRANCH: develop
+  GITOPS_LICENCE_PLATE: b3c707
+  ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
+  ARTIFACTORY_IMAGE_PATH: sbc3-images
+  BUILD_DOCKERFILE: api/Dockerfile.release
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:      
-
+    steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
       - name: Login to Artifactory
         uses: docker/login-action@v1
         with:
-          registry: artifacts.developer.gov.bc.ca
+          registry: ${{ ARTIFACTORY_REPO }}
           username: ${{ secrets.ARTIFACTORY_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_PASSWORD }}
 
@@ -27,44 +31,17 @@ jobs:
         run: |
           echo "::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)"
           echo "Short SHA: $SHORT_SHA"
-        
+
       - name: Docker Build Image
-        run: |          
-          docker build --tag ${{ env.IMAGE_NAME }} -f api/Dockerfile . 
-          docker tag ${{ env.IMAGE_NAME }} artifacts.developer.gov.bc.ca/sb3c-images/${{ env.IMAGE_NAME }}:dev-${{ steps.short_sha.outputs.SHORT_SHA }}
-          docker push artifacts.developer.gov.bc.ca/sb3c-images/${{ env.IMAGE_NAME }}:dev-${{ steps.short_sha.outputs.SHORT_SHA }}
-
-      - name: Checkout ArgoCD Repo
-        id: gitops
-        uses: actions/checkout@v4
-        with:
-          repository: bcgov-c/tenant-gitops-b3c707
-          ref: develop
-          token: ${{ secrets.GIT_OPS_SSH_KEY }} # `GH_PAT` is a secret that contains your PAT
-          path: gitops
-
-      - name: Update Helm Values and Commit
-        id: helm
-        if: steps.gitops.outcome == 'success'  # Only run if the previous step (publish) was successful
         run: |
-          # Clone the GitOps deployment configuration repository
-          # Navigate to the directory containing your Helm values file for the environment develop -> DEV, test -> test and 
-          cd gitops/charts
+          docker build --tag ${{ env.IMAGE_NAME }} -f ${{ BUILD_DOCKERFILE }} . 
+          docker tag ${{ env.IMAGE_NAME }} ${{ ARTIFACTORY_REPO }}/${{ ARTIFACTORY_IMAGE_PATH }}/${{ env.IMAGE_NAME }}:dev-${{ steps.short_sha.outputs.SHORT_SHA }}
+          docker push ${{ ARTIFACTORY_REPO }}/${{ ARTIFACTORY_IMAGE_PATH }}/${{ env.IMAGE_NAME }}:dev-${{ steps.short_sha.outputs.SHORT_SHA }}
 
-          # Update the Helm values file with the new image tag and version
-          DATETIME=$(date +'%Y-%m-%d %H:%M:%S')  # Get current date and time
-
-          sed -i "s/apitag: .*/apitag: dev-${{ steps.short_sha.outputs.SHORT_SHA }} # Image Updated on $DATETIME/" ../deploy/dev_values.yaml
-
-          sed -i "s/apitag: .*/apitag: dev-${{ steps.short_sha.outputs.SHORT_SHA }} # Image Updated on $DATETIME/" api/values.yaml
-          
-          # Commit and push the changes
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          
-          git add .
-          
-          git add ../deploy/dev_values.yaml
-          
-          git commit -m "Update API image tag"
-          git push origin develop  # Update the branch name as needed
+      - name: Update ArgoCD Repo
+        uses: ./.github/workflows/actions/update-argo-repo
+        with:
+          licence_plate: ${{ env.GITOPS_LICENCE_PLATE }}
+          gitops_branch: ${{ env.GITOPS_BRANCH }}
+          tag: ${{ steps.short_sha.outputs.SHORT_SHA }}
+          yaml_paths: "api/values.yaml ../develop/values.yaml"
