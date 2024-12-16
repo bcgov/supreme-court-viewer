@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 env:
   IMAGE_NAME: api
+  IMAGE_TAG_PREFIX: dev
   WORKING_DIRECTORY: ./
   GITOPS_BRANCH: develop
   GITOPS_LICENCE_PLATE: b3c707
@@ -18,6 +19,12 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      - name: Get short SHA
+        id: short_sha
+        run: |
+          echo "::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)"
+          echo "Short SHA: $SHORT_SHA"
+
       - name: Login to Artifactory
         uses: docker/login-action@v1
         with:
@@ -25,23 +32,17 @@ jobs:
           username: ${{ secrets.ARTIFACTORY_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_PASSWORD }}
 
-      # Get SHORT_SHA to tag images
-      - name: Get short SHA
-        id: short_sha
-        run: |
-          echo "::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)"
-          echo "Short SHA: $SHORT_SHA"
-
       - name: Docker Build Image
         run: |
           docker build --tag ${{ env.IMAGE_NAME }} -f ${{ BUILD_DOCKERFILE }} . 
-          docker tag ${{ env.IMAGE_NAME }} ${{ ARTIFACTORY_REPO }}/${{ ARTIFACTORY_IMAGE_PATH }}/${{ env.IMAGE_NAME }}:dev-${{ steps.short_sha.outputs.SHORT_SHA }}
-          docker push ${{ ARTIFACTORY_REPO }}/${{ ARTIFACTORY_IMAGE_PATH }}/${{ env.IMAGE_NAME }}:dev-${{ steps.short_sha.outputs.SHORT_SHA }}
+          docker tag ${{ env.IMAGE_NAME }} ${{ ARTIFACTORY_REPO }}/${{ ARTIFACTORY_IMAGE_PATH }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
+          docker push ${{ ARTIFACTORY_REPO }}/${{ ARTIFACTORY_IMAGE_PATH }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
 
       - name: Update ArgoCD Repo
         uses: ./.github/workflows/actions/update-argo-repo
         with:
           licence_plate: ${{ env.GITOPS_LICENCE_PLATE }}
           gitops_branch: ${{ env.GITOPS_BRANCH }}
-          tag: ${{ steps.short_sha.outputs.SHORT_SHA }}
-          yaml_paths: "api/values.yaml ../develop/values.yaml"
+          image_tag: ${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
+          helm_property: /apitag
+          helm_paths: "api/values.yaml ../develop/values.yaml"

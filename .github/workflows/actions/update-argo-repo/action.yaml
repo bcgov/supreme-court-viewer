@@ -14,7 +14,11 @@ inputs:
     type: string
     description: The image tag to update
     required: true
-  yaml_paths:
+  helm_property:
+    type: string
+    description: The property in the Helm values file to update
+    required: true
+  helm_paths:
     type: string
     description: space separated list of paths to the Helm values files to update
     required: true
@@ -42,10 +46,10 @@ runs:
         # Update the Helm values file with the new image tag and version
         DATETIME=$(date +'%Y-%m-%d %H:%M:%S')  # Get current date and time
 
-        # Split incoming yaml_paths by space into an array and loop through each path update the image tag in each file
-        IFS=' ' read -r -a paths <<< "${{ inputs.yaml_paths }}"
+        # Split incoming helm_paths by space into an array and loop through each path update the image tag in each file
+        IFS=' ' read -r -a paths <<< "${{ inputs.helm_paths }}"
         for path in "${paths[@]}"; do
-          sed -i "s/${{ inputs.tag }}: .*/${{ inputs.tag }}: ${{ inputs.image_tag }} # Image Updated on $DATETIME/" $path
+          sed -i "s/${{ inputs.helm_property }}: .*/${{ inputs.helm_property }}: ${{ inputs.image_tag }} # Image Updated on $DATETIME/" $path
           # Stage the changed path immediately for upcoming commit
           git add $path
         done
