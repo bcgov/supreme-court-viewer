@@ -1,0 +1,46 @@
+name: Build docker and push to artifactory repo
+description: perform a build and tag and push to a desired repo. Artifactory secrets should be set.
+
+inputs:
+  working_diretory:
+    type: string
+    description: The directory to work in
+    default: ./
+  image_name:
+    type: string
+    description: The name of the image to build
+    required: true
+  image_tag:
+    type: string
+    description: The docker image tag
+    required: true
+  artifactory_repo:
+    type: string
+    description: The Artifactory repository to push the image to
+    required: true
+  artifactory_image_path:
+    type: string
+    description: The path in the Artifactory repository to push the image to
+    required: true
+  build_dockerfile:
+    type: string
+    description: The path to the Dockerfile to build
+    required: true
+runs:
+  using: composite
+
+  steps:
+    - name: Login to Artifactory
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ inputs.artifactory_repo }}
+          username: ${{ secrets.ARTIFACTORY_USERNAME }}
+          password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+
+    - name: Build Image And Push to Artifactory
+      id: docker_build
+      run: |
+        cd ${{ inputs.working_diretory }}
+        docker build --tag ${{ inputs.image_name }} -f ${{ inputs.build_dockerfile }} . 
+        docker tag ${{ inputs.image_name }} ${{ inputs.artifactory_repo }}/${{ inputs.artifactory_image_path }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
+        docker push ${{ inputs.artifactory_repo }}/${{ inputs.artifactory_image_path }}/${{ inputs.image_name }}:${{ inputs.image_tag }}

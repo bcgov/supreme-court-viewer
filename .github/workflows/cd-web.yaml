@@ -10,7 +10,7 @@ env:
   GITOPS_LICENCE_PLATE: b3c707
   ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
   ARTIFACTORY_IMAGE_PATH: sbc3-images
-  BUILD_DOCKERFILE: api/Dockerfile.release
+  BUILD_DOCKERFILE: web/Dockerfile.release
 jobs:
   builds:
     runs-on: ubuntu-latest
@@ -25,18 +25,14 @@ jobs:
           echo "::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)"
           echo "Short SHA: $SHORT_SHA"
 
-      - name: Login to Artifactory
-        uses: docker/login-action@v1
+      - name: Build and Push API images to Artifactory
+        uses: ./.github/workflows/actions/docker-build-push-artifactory
         with:
-          registry: artifacts.developer.gov.bc.ca
-          username: ${{ secrets.ARTIFACTORY_USERNAME }}
-          password: ${{ secrets.ARTIFACTORY_PASSWORD }}
-
-      - name: Docker Build Image
-        run: |
-          docker build --tag ${{ env.IMAGE_NAME }} -f ${{ BUILD_DOCKERFILE }} . 
-          docker tag ${{ env.IMAGE_NAME }} ${{ ARTIFACTORY_REPO }}/${{ ARTIFACTORY_IMAGE_PATH }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
-          docker push ${{ ARTIFACTORY_REPO }}/${{ ARTIFACTORY_IMAGE_PATH }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
+          image_name: ${{ env.IMAGE_NAME }}
+          image_tag: ${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
+          artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
+          artifactory_image_path: ${{ env.ARTIFACTORY_IMAGE_PATH }}
+          build_dockerfile: ${{ env.BUILD_DOCKERFILE }}
 
       - name: Update ArgoCD Repo
         uses: ./.github/workflows/actions/update-argo-repo
