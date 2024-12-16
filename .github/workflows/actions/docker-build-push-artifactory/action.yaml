@@ -30,11 +30,11 @@ runs:
 
   steps:
     - name: Login to Artifactory
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ inputs.artifactory_repo }}
-          username: ${{ secrets.ARTIFACTORY_USERNAME }}
-          password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ inputs.artifactory_repo }}
+        username: ${{ secrets.ARTIFACTORY_USERNAME }}
+        password: ${{ secrets.ARTIFACTORY_PASSWORD }}
 
     - name: Build Image And Push to Artifactory
       id: docker_build
