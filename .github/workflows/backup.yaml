@@ -5,12 +5,14 @@ on:
 env:
   IMAGE_NAME: backup
   WORKING_DIRECTORY: ./
+  ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
+  ARTIFACTORY_IMAGE_PATH: sbc3-images
+  BUILD_DOCKERFILE: api/Dockerfile.release
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:      
-
+    steps:
       - name: Login to Artifactory
         uses: docker/login-action@v1
         with:
@@ -29,6 +31,5 @@ jobs:
         run: |
           cd docker
           docker build --tag ${{ env.IMAGE_NAME }} . 
-          docker tag ${{ env.IMAGE_NAME }} artifacts.developer.gov.bc.ca/sb3c-images/${{ env.IMAGE_NAME }}:latest 
-          docker push artifacts.developer.gov.bc.ca/sb3c-images/${{ env.IMAGE_NAME }}
-
+          docker tag ${{ env.IMAGE_NAME }} ${{ env.ARTIFACTORY_REPO }}/${{ env.ARTIFACTORY_IMAGE_PATH }}/${{ env.IMAGE_NAME }}:latest 
+          docker push ${{ env.ARTIFACTORY_REPO }}/${{ env.ARTIFACTORY_IMAGE_PATH }}/${{ env.IMAGE_NAME }}
