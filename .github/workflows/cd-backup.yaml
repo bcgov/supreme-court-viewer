@@ -20,7 +20,7 @@ jobs:
           repository: BCDevOps/backup-container.git
           ref: 2.9.0
 
-      - name: Docker Build Backup Image
+      - name: Docker Build Backup Image and push to Artifactory
         uses: ./.github/workflows/actions/docker-build-push-artifactory
         with:
           working_directory: docker
@@ -28,4 +28,3 @@ jobs:
           image_tag: latest
           artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
           artifactory_image_path: ${{ env.ARTIFACTORY_IMAGE_PATH }}
-          build_dockerfile: ${{ env.BUILD_DOCKERFILE }}

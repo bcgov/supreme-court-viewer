@@ -25,7 +25,6 @@ inputs:
   build_dockerfile:
     type: string
     description: The path to the Dockerfile to build
-    required: true
 runs:
   using: composite
 
@@ -41,6 +40,10 @@ runs:
       id: docker_build
       run: |
         cd ${{ inputs.working_diretory }}
-        docker build --tag ${{ inputs.image_name }} -f ${{ inputs.build_dockerfile }} . 
+        if [ -n "${{ inputs.build_dockerfile }}" ]; then
+          docker build --tag ${{ inputs.image_name }} -f ${{ inputs.build_dockerfile }} .
+        else
+          docker build --tag ${{ inputs.image_name }} .
+        fi 
         docker tag ${{ inputs.image_name }} ${{ inputs.artifactory_repo }}/${{ inputs.artifactory_image_path }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
         docker push ${{ inputs.artifactory_repo }}/${{ inputs.artifactory_image_path }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
