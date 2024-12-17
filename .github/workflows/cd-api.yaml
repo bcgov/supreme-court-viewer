@@ -26,6 +26,7 @@ jobs:
           echo "Short SHA: $SHORT_SHA"
 
       - name: Build and Push API images to Artifactory
+        id: build_push
         uses: ./.github/workflows/actions/docker-build-push-artifactory
         with:
           image_name: ${{ env.IMAGE_NAME }}
@@ -35,6 +36,8 @@ jobs:
           build_dockerfile: ${{ env.BUILD_DOCKERFILE }}
 
       - name: Update ArgoCD Repo
+        id: update_argo_repo
+        if: steps.build_push.outcome == 'success'
         uses: ./.github/workflows/actions/update-argo-repo
         with:
           licence_plate: ${{ env.GITOPS_LICENCE_PLATE }}
