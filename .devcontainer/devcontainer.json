@@ -21,7 +21,6 @@
         "foxundermoon.shell-format"
       ],
       "settings": {
-        "files.eol": "\n",
         "editor.codeActionsOnSave": {
           "source.organizeImports": "explicit"
         },
