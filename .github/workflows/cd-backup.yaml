@@ -23,7 +23,7 @@ jobs:
       - name: Docker Build Backup Image and push to Artifactory
         uses: ./.github/workflows/actions/docker-build-push-artifactory
         with:
-          working_directory: docker
+          docker_context_directory: docker
           image_name: ${{ env.IMAGE_NAME }}
           image_tag: latest
           artifactory_repo: ${{ env.ARTIFACTORY_REPO }}

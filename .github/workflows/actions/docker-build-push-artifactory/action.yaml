@@ -2,7 +2,7 @@ name: Build docker and push to artifactory repo
 description: perform a build and tag and push to a desired repo. Artifactory secrets should be set.
 
 inputs:
-  docker_context_diretory:
+  docker_context_directory:
     type: string
     description: The directory to work in
     default: ./
@@ -25,6 +25,9 @@ inputs:
   build_dockerfile:
     type: string
     description: The path to the Dockerfile to build
+  docker_target:
+    type: string
+    description: The build stage target to build in the Dockerfile. Optional will build final stage by default.
 runs:
   using: composite
 
@@ -60,7 +63,7 @@ runs:
       uses: docker/build-push-action@v5
       with:
         push: true
-        context: ${{ inputs.docker_context_diretory }}
+        context: ${{ inputs.docker_context_directory }}
         file: ${{ inputs.build_dockerfile || 'Dockerfile' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
