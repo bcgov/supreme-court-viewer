@@ -1,6 +1,13 @@
 name: Web
 
 on:
+  push:
+    branches: [master]
+    paths:
+      - "web/**"
+      - "docker/web/**"
+      - ".github/workflows/actions/**"
+      - ".github/workflows/cd-web.yaml"
   workflow_dispatch:
 env:
   IMAGE_NAME: web
