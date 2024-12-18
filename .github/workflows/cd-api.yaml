@@ -17,7 +17,6 @@ env:
   GITOPS_LICENCE_PLATE: b3c707
   ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
   ARTIFACTORY_IMAGE_PATH: sbc3-images
-  BUILD_DOCKERFILE: api/Dockerfile.release
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,7 +41,7 @@ jobs:
           artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
           artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
           artifactory_image_path: ${{ env.ARTIFACTORY_IMAGE_PATH }}
-          build_dockerfile: ${{ env.BUILD_DOCKERFILE }}
+          build_dockerfile: ./docker/api/Dockerfile.release
 
       - name: Update ArgoCD Repo
         id: update_argo_repo

@@ -43,7 +43,7 @@ jobs:
           artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
           artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
           artifactory_image_path: ${{ env.ARTIFACTORY_IMAGE_PATH }}
-          build_dockerfile: web/Dockerfile.release
+          build_dockerfile: ./docker/web/Dockerfile.release
           docker_build_args: |
             WEB_BASE_HREF=${{ env.WEB_BASE_HREF }}
             NGINX_RUNTIME_SRC='../../docker/nginx-runtime' 
