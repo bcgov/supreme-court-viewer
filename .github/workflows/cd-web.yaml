@@ -46,9 +46,9 @@ jobs:
           build_dockerfile: ./docker/web/Dockerfile.release
           docker_build_args: |
             WEB_BASE_HREF=${{ env.WEB_BASE_HREF }}
-            NGINX_RUNTIME_SRC='../../docker/nginx-runtime' 
-            VUE_ON_NGINX_SRC='../../docker/vue-on-nginx' 
-            WEB_SRC='../../web'
+            NGINX_RUNTIME_SRC=../../docker/nginx-runtime
+            VUE_ON_NGINX_SRC=../../docker/vue-on-nginx
+            WEB_SRC=../../web
 
       - name: Update ArgoCD Repo
         id: update_argo_repo
