@@ -17,7 +17,7 @@ env:
   GITOPS_LICENCE_PLATE: b3c707
   ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
   ARTIFACTORY_IMAGE_PATH: sbc3-images
-  BUILD_DOCKERFILE: web/Dockerfile.release
+
 jobs:
   builds:
     runs-on: ubuntu-latest
@@ -40,7 +40,11 @@ jobs:
           image_tag: ${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
           artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
           artifactory_image_path: ${{ env.ARTIFACTORY_IMAGE_PATH }}
-          build_dockerfile: ${{ env.BUILD_DOCKERFILE }}
+          build_dockerfile: web/Dockerfile.release
+          build_docker_args: |
+            NGINX_RUNTIME_SRC='./docker/nginx-runtime' 
+            VUE_ON_NGINX_SRC='./docker/vue-on-nginx' 
+            WEB_SRC='./docker/web'
 
       - name: Update ArgoCD Repo
         id: update_argo_repo
@@ -51,4 +55,4 @@ jobs:
           gitops_branch: ${{ env.GITOPS_BRANCH }}
           image_tag: ${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
           helm_property: /webtag
-          helm_paths: "web/values.yaml ../develop/values.yaml"
+          helm_paths: web/values.yaml ../develop/values.yaml
