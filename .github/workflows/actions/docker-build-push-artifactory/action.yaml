@@ -14,6 +14,14 @@ inputs:
     type: string
     description: The docker image tag
     required: true
+  artifactory_username:
+    type: string
+    description: The Artifactory username
+    required: true
+  artifactory_password:
+    type: string
+    description: The Artifactory password
+    required: true
   artifactory_repo:
     type: string
     description: The Artifactory repository to push the image to
@@ -50,8 +58,8 @@ runs:
       uses: docker/login-action@v3
       with:
         registry: ${{ inputs.artifactory_repo }}
-        username: ${{ secrets.ARTIFACTORY_USERNAME }}
-        password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+        username: ${{ inputs.artifactory_username }}
+        password: ${{ inputs.artifactory_password }}
 
     - name: Setup Image Metadata
       id: meta

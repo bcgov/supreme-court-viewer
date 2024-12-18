@@ -38,6 +38,8 @@ jobs:
         with:
           image_name: ${{ env.IMAGE_NAME }}
           image_tag: ${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
+          artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
+          artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
           artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
           artifactory_image_path: ${{ env.ARTIFACTORY_IMAGE_PATH }}
           build_dockerfile: web/Dockerfile.release
