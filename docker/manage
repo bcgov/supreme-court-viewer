@@ -205,41 +205,41 @@ COMMAND=$(toLower ${1})
 shift
 
 case "$COMMAND" in
-start)
-  _startupParams=$(getStartupParams $@)
-  configureEnvironment $@
-  docker-compose up ${_startupParams}
-  ;;
-web-dev)
-  # todo
-  ;;
-stop)
-  docker-compose stop
-  ;;
-rm | down)
-  configureEnvironment
-  deleteVolumes
-  ;;
-build)
-  buildImage=$(toLower ${1})
-  shift || buildImage=all
-  buildImage=$(echo ${buildImage} | sed s~^vcr-~~)
-  case "$buildImage" in
-  *=*)
-    buildImage=all
+  start)
+    _startupParams=$(getStartupParams $@)
+    configureEnvironment $@
+    docker-compose up ${_startupParams}
     ;;
-  esac
+  web-dev)
+    # todo
+    ;;
+  stop)
+    docker-compose stop
+    ;;
+  rm | down)
+    configureEnvironment
+    deleteVolumes
+    ;;
+  build)
+    buildImage=$(toLower ${1})
+    shift || buildImage=all
+    buildImage=$(echo ${buildImage} | sed s~^vcr-~~)
+    case "$buildImage" in
+    *=*)
+      buildImage=all
+      ;;
+    esac
 
-  if functionExists "build-${buildImage}"; then
-    eval "build-${buildImage}"
-  else
-    echo -e "Error:\nThe build function, build-${buildImage}, does not exist.  Please check your build parameters and try again.\nUse '-h' to get full help details."
-    exit 1
-  fi
-  ;;
-*)
-  usage
-  ;;
+    if functionExists "build-${buildImage}"; then
+      eval "build-${buildImage}"
+    else
+      echo -e "Error:\nThe build function, build-${buildImage}, does not exist.  Please check your build parameters and try again.\nUse '-h' to get full help details."
+      exit 1
+    fi
+    ;;
+  *)
+    usage
+    ;;
 esac
 
 popd >/dev/null
