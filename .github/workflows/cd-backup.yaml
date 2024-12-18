@@ -1,4 +1,4 @@
-name: Backup
+name: CD - Backup
 
 on:
   workflow_dispatch:

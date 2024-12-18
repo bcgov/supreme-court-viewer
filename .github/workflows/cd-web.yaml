@@ -1,4 +1,4 @@
-name: Web
+name: CD - Web
 
 on:
   push:
@@ -17,6 +17,7 @@ env:
   GITOPS_LICENCE_PLATE: b3c707
   ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
   ARTIFACTORY_IMAGE_PATH: sbc3-images
+  WEB_BASE_HREF: /
 
 jobs:
   builds:
@@ -43,10 +44,11 @@ jobs:
           artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
           artifactory_image_path: ${{ env.ARTIFACTORY_IMAGE_PATH }}
           build_dockerfile: web/Dockerfile.release
-          build_docker_args: |
-            NGINX_RUNTIME_SRC='./docker/nginx-runtime' 
-            VUE_ON_NGINX_SRC='./docker/vue-on-nginx' 
-            WEB_SRC='./docker/web'
+          docker_build_args: |
+            WEB_BASE_HREF=${{ env.WEB_BASE_HREF }}
+            NGINX_RUNTIME_SRC='../../docker/nginx-runtime' 
+            VUE_ON_NGINX_SRC='../../docker/vue-on-nginx' 
+            WEB_SRC='../../web'
 
       - name: Update ArgoCD Repo
         id: update_argo_repo
