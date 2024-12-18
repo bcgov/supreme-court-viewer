@@ -50,7 +50,7 @@ usage() {
   rm - Same as down
 
 EOF
-  exit 1
+exit 1
 }
 
 # -----------------------------------------------------------------------------------------------------------------
@@ -126,9 +126,9 @@ configureEnvironment() {
 
   for arg in $@; do
     case "$arg" in
-    *=*)
-      export ${arg}
-      ;;
+      *=*)
+        export ${arg}
+        ;;
     esac
   done
 
@@ -150,15 +150,13 @@ getStartupParams() {
 
   for arg in $@; do
     case "$arg" in
-    *=*)
-      # Skip it
-      ;;
-    -*)
-      ARGS+=" $arg"
-      ;;
-    *)
-      CONTAINERS+=" $arg"
-      ;;
+      *=*)
+        # Skip it
+        ;;
+      -*)
+        ARGS+=" $arg";;
+      *)
+        CONTAINERS+=" $arg";;
     esac
   done
 
@@ -239,7 +237,6 @@ case "$COMMAND" in
     ;;
   *)
     usage
-    ;;
 esac
 
 popd >/dev/null
