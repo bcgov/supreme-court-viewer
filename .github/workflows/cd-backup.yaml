@@ -1,0 +1,30 @@
+name: Backup
+
+on:
+  workflow_dispatch:
+env:
+  IMAGE_NAME: backup
+  WORKING_DIRECTORY: ./
+  ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
+  ARTIFACTORY_IMAGE_PATH: sbc3-images
+  BUILD_DOCKERFILE: api/Dockerfile.release
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Backup Container Repo
+        id: gitops
+        uses: actions/checkout@v4
+        with:
+          repository: BCDevOps/backup-container.git
+          ref: 2.9.0
+
+      - name: Docker Build Backup Image and push to Artifactory
+        uses: ./.github/workflows/actions/docker-build-push-artifactory
+        with:
+          docker_context_directory: docker
+          image_name: ${{ env.IMAGE_NAME }}
+          image_tag: latest
+          artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
+          artifactory_image_path: ${{ env.ARTIFACTORY_IMAGE_PATH }}

@@ -57,8 +57,8 @@ exit 1
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
 build-all() {
- build-web
- build-api
+  build-web
+  build-api
 }
 
 build-api() {
@@ -66,17 +66,12 @@ build-api() {
   # api
   #
   echo -e "\n\n===================================================================================================="
-  echo -e "Building api image using s2i ..."
+  echo -e "Building api image using docker ..."
   echo -e "----------------------------------------------------------------------------------------------------"
-  ${S2I_EXE} build \
-    --copy \
-    -e "ASPNETCORE_ENVIRONMENT=Production" \
-    -e "ASPNETCORE_URLS=http://+:5000" \
-    -e "CORS_DOMAIN=http://localhost:8080" \
-    -e "DOTNET_STARTUP_PROJECT=./api/api.csproj" \
-    '..' \
-    'registry.access.redhat.com/ubi8/dotnet-80:8.0' \
-    'scv-api'
+  docker build \
+    -t "${COMPOSE_PROJECT_NAME}-api" \
+    -f './api/Dockerfile.dev' '..'
+
   echo -e "===================================================================================================="
 }
 
@@ -84,38 +79,18 @@ build-web() {
   #
   # web
   #
-  # The web-runtime image is used for the final runtime image.
-  # The scv-app image is used to build the artifacts for the vue distribution.
-  # The vue-on-nginx image is copy of the nginx-runtime image complete with a copy of the build artifacts.
-  #
   echo -e "\n\n===================================================================================================="
-  echo -e "Building the scv-web-runtime (nginx-runtime) image using Docker ..."
+  echo -e "Building the ${COMPOSE_PROJECT_NAME}-web image using Docker ..."
   echo -e "----------------------------------------------------------------------------------------------------"
+  # --build-arg NODE_VERSION=18 \ # To be reinstated when the project advances to Vue 2.7 or 3
   docker build \
-    -t 'scv-web-runtime' \
-    -f './nginx-runtime/Dockerfile' './nginx-runtime/'
-  echo -e "===================================================================================================="
-
-  # Apparently vue-cli-tools wants WEB_BASE_HREF -> vue.config.js -> publicPath at compile time.
-  # I tried using __webpack_public_path__, but the CSS file path and JS file path weren't correctly updated.
-  # Also note we don't load in environment variables from the arguments here.
-  echo -e "\n\n===================================================================================================="
-  echo -e "Building the scv-web-artifacts image using s2i ..."
-  echo -e "----------------------------------------------------------------------------------------------------"
-  ${S2I_EXE} build \
-    --copy \
-    '../web' \
-    'centos/nodejs-12-centos7' \
-    'scv-web-artifacts'
-  echo -e "===================================================================================================="
-
-  echo -e "\n\n===================================================================================================="
-  echo -e "Building the scv-web image using Docker ..."
-  echo -e "----------------------------------------------------------------------------------------------------"
-  docker build \
-    -t 'scv-web' \
+    -t "${COMPOSE_PROJECT_NAME}-web" \
     --build-arg IMAGE_PREFIX=${COMPOSE_PROJECT_NAME}- \
-    -f './vue-on-nginx/Dockerfile' './vue-on-nginx/'
+    --build-arg NGINX_RUNTIME_SRC='../docker/nginx-runtime' \
+    --build-arg VUE_ON_NGINX_SRC='../docker/vue-on-nginx' \
+    --build-arg WEB_SRC='./web' \
+    -f './web/Dockerfile.release' '..'
+
   echo -e "===================================================================================================="
 }
 
@@ -142,7 +117,7 @@ build-web-dev() {
   echo -e "===================================================================================================="
 }
 
-configureEnvironment () {
+configureEnvironment() {
 
   if [ -f .env ]; then
     echo -e "\nLoading environment variables from .env ...\n"
@@ -178,7 +153,7 @@ getStartupParams() {
       *=*)
         # Skip it
         ;;
-     -*)
+      -*)
         ARGS+=" $arg";;
       *)
         CONTAINERS+=" $arg";;
@@ -239,7 +214,7 @@ case "$COMMAND" in
   stop)
     docker-compose stop
     ;;
-  rm|down)
+  rm | down)
     configureEnvironment
     deleteVolumes
     ;;

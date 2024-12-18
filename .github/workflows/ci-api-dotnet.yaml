@@ -1,4 +1,4 @@
-name: API (.NET Core)
+name: CI - API (.NET Core)
 
 on:
   push:

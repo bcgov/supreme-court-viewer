@@ -1,4 +1,4 @@
-name: APP (Vue)
+name: CI - APP (Vue)
 
 on:
   push:

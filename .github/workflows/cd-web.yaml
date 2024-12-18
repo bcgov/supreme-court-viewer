@@ -1,0 +1,58 @@
+name: Web
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "web/**"
+      - "docker/web/**"
+      - ".github/workflows/actions/**"
+      - ".github/workflows/cd-web.yaml"
+  workflow_dispatch:
+env:
+  IMAGE_NAME: web
+  IMAGE_TAG_PREFIX: dev
+  WORKING_DIRECTORY: ./
+  GITOPS_BRANCH: develop
+  GITOPS_LICENCE_PLATE: b3c707
+  ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
+  ARTIFACTORY_IMAGE_PATH: sbc3-images
+
+jobs:
+  builds:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Get short SHA
+        id: short_sha
+        run: |
+          echo "::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)"
+          echo "Short SHA: $SHORT_SHA"
+
+      - name: Build and Push API images to Artifactory
+        id: build_push
+        uses: ./.github/workflows/actions/docker-build-push-artifactory
+        with:
+          image_name: ${{ env.IMAGE_NAME }}
+          image_tag: ${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
+          artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
+          artifactory_image_path: ${{ env.ARTIFACTORY_IMAGE_PATH }}
+          build_dockerfile: web/Dockerfile.release
+          build_docker_args: |
+            NGINX_RUNTIME_SRC='./docker/nginx-runtime' 
+            VUE_ON_NGINX_SRC='./docker/vue-on-nginx' 
+            WEB_SRC='./docker/web'
+
+      - name: Update ArgoCD Repo
+        id: update_argo_repo
+        if: steps.build_push.outcome == 'success'
+        uses: ./.github/workflows/actions/update-argo-repo
+        with:
+          licence_plate: ${{ env.GITOPS_LICENCE_PLATE }}
+          gitops_branch: ${{ env.GITOPS_BRANCH }}
+          image_tag: ${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
+          helm_property: /webtag
+          helm_paths: web/values.yaml ../develop/values.yaml

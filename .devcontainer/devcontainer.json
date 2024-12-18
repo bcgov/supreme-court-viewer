@@ -17,8 +17,7 @@
         "christian-kohler.path-intellisense",
         "ms-dotnettools.csdevkit",
         "ms-dotnettools.csharp",
-        "ms-dotnettools.vscode-dotnet-runtime",
-        "foxundermoon.shell-format"
+        "ms-dotnettools.vscode-dotnet-runtime"
       ],
       "settings": {
         "editor.codeActionsOnSave": {

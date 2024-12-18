@@ -1,0 +1,29 @@
+name: Schema-Spy
+
+on:
+  workflow_dispatch:
+env:
+  IMAGE_NAME: schema-spy
+  WORKING_DIRECTORY: ./
+  ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
+  ARTIFACTORY_IMAGE_PATH: sbc3-images
+  BUILD_DOCKERFILE: api/Dockerfile.release
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Schema Spy Repo
+        id: gitops
+        uses: actions/checkout@v4
+        with:
+          repository: bcgov/SchemaSpy.git
+          ref: master
+
+      - name: Docker Build Schema Spy Image and push to Artifactory
+        uses: ./.github/workflows/actions/docker-build-push-artifactory
+        with:
+          image_name: ${{ env.IMAGE_NAME }}
+          image_tag: latest
+          artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
+          artifactory_image_path: ${{ env.ARTIFACTORY_IMAGE_PATH }}
