@@ -223,9 +223,9 @@ case "$COMMAND" in
     shift || buildImage=all
     buildImage=$(echo ${buildImage} | sed s~^vcr-~~)
     case "$buildImage" in
-    *=*)
-      buildImage=all
-      ;;
+      *=*)
+        buildImage=all
+        ;;
     esac
 
     if functionExists "build-${buildImage}"; then
