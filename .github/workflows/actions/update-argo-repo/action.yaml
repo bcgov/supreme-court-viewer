@@ -10,6 +10,10 @@ inputs:
     type: string
     description: The branch to update standard branches for tenant-gitops (develop, test, prod)
     required: true
+  gitops_ssh_key:
+    type: string
+    description: The SSH key to use to access the gitops repository
+    required: true
   image_tag:
     type: string
     description: The image tag to update
@@ -33,7 +37,7 @@ runs:
       with:
         repository: bcgov-c/tenant-gitops-${{ inputs.licence_plate }}
         ref: ${{ inputs.gitops_branch }}
-        token: ${{ secrets.GIT_OPS_SSH_KEY }} # `GH_PAT` is a secret that contains your PAT
+        token: ${{ inputs.gitops_ssh_key }} # `GH_PAT` is a secret that contains your PAT
         path: gitops
 
     - name: Update Helm Values and Commit
