@@ -43,6 +43,7 @@ runs:
     - name: Update Helm Values and Commit
       id: helm
       if: steps.gitops.outcome == 'success'
+      shell: bash
       run: |
         # Navigate to the directory containing your Helm values file for the environment develop -> DEV, test -> test and 
         cd gitops/charts
