@@ -14,7 +14,7 @@ env:
   GITOPS_BRANCH: develop
   GITOPS_LICENCE_PLATE: b3c707
   ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
-  ARTIFACTORY_IMAGE_PATH: sbc3-images
+  ARTIFACTORY_IMAGE_PATH: sb3c-images
 jobs:
   build:
     runs-on: ubuntu-latest
