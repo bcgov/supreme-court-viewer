@@ -6,7 +6,7 @@ env:
   IMAGE_NAME: schema-spy
   WORKING_DIRECTORY: ./
   ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
-  ARTIFACTORY_IMAGE_PATH: sbc3-images
+  ARTIFACTORY_IMAGE_PATH: sb3c-images
   BUILD_DOCKERFILE: api/Dockerfile.release
 jobs:
   build:
