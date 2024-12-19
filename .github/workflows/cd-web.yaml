@@ -6,8 +6,6 @@ on:
     paths:
       - "web/**"
       - "docker/web/**"
-      - ".github/workflows/actions/**"
-      - ".github/workflows/cd-web.yaml"
   workflow_dispatch:
 env:
   IMAGE_NAME: web
@@ -30,8 +28,7 @@ jobs:
       - name: Get short SHA
         id: short_sha
         run: |
-          echo "::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)"
-          echo "Short SHA: $SHORT_SHA"
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build and Push API images to Artifactory
         id: build_push
