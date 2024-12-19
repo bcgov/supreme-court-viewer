@@ -1,4 +1,13 @@
-# Running the Application on Docker
+# Running the Application on 
+
+## Notes
+
+- DevContainer will fail to build/rebuild when connected to the BC Gov's VPN.
+
+- You may find this command handy when wiping all unused containers, volumes, networks and images.
+    ```
+    docker system prune -a --volumes
+    ```
 
 ## Management Script
 
