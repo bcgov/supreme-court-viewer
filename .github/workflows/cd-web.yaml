@@ -56,5 +56,5 @@ jobs:
           gitops_branch: ${{ env.GITOPS_BRANCH }}
           gitops_ssh_key: ${{ secrets.GIT_OPS_SSH_KEY }}
           image_tag: ${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
-          helm_property: /webtag
+          helm_property: webtag
           helm_paths: web/values.yaml ../develop/values.yaml
