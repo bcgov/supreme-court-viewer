@@ -34,6 +34,7 @@ jobs:
         with:
           image_name: ${{ env.IMAGE_NAME }}
           image_tag: ${{ env.DEPLOYMENT_ENV }}-${{ steps.short_sha.outputs.SHORT_SHA }}
+          image_sha: ${{ steps.short_sha.outputs.SHORT_SHA }}
           artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
           artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
           artifactory_repo: ${{ env.ARTIFACTORY_REPO }}

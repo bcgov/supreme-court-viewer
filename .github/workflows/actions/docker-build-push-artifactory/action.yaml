@@ -14,6 +14,10 @@ inputs:
     type: string
     description: The docker image tag
     required: true
+  image_sha:
+    type: string
+    description: The short SHA of the commit
+    required: true
   artifactory_username:
     type: string
     description: The Artifactory username
@@ -69,6 +73,7 @@ runs:
           ${{ inputs.artifactory_repo }}/${{ inputs.artifactory_image_path }}/${{ inputs.image_name }}
         tags: |
           type=raw,value=${{ inputs.image_tag }}
+          type=sha,value=${{ inputs.image_sha }}
 
     - name: Build and Push Image to artifactory.io
       uses: docker/build-push-action@v6
