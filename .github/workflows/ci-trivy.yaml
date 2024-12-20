@@ -18,6 +18,7 @@ jobs:
         context: ["docker/web", "docker/api"]
         include:
           - context: docker/web
+            context_path: .
             image_name: scv-web
             sarif_file: trivy-web.sarif
             docker_file: docker/web/Dockerfile.release
@@ -27,12 +28,21 @@ jobs:
               VUE_ON_NGINX_SRC=../../docker/vue-on-nginx
               WEB_SRC=../../web
           - context: docker/api
+            context_path: .
             image_name: scv-api
             sarif_file: trivy-api.sarif
             docker_file: docker/api/Dockerfile.release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Setup
         uses: docker/setup-buildx-action@v3
@@ -42,7 +52,7 @@ jobs:
       - name: Build
         uses: docker/build-push-action@v6
         with:
-          context: ${{matrix.context}}
+          context: ${{matrix.context_path}}
           file: ${{matrix.docker_file}}
           push: false
           load: true
