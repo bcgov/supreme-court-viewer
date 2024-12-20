@@ -1,4 +1,4 @@
-name: "trivy-scan"
+name: CI - Trivy Scan
 
 on:
   schedule:
@@ -15,16 +15,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        context: ["docker/web", "docker/web"]
+        context: ["docker/web", "docker/api"]
         include:
           - context: docker/web
             image_name: scv-web
             sarif_file: trivy-web.sarif
             docker_file: docker/web/Dockerfile.release
-          - context: docker/web
+            docker_build_args: |
+              WEB_BASE_HREF=${{ env.WEB_BASE_HREF }}
+              NGINX_RUNTIME_SRC=../../docker/nginx-runtime
+              VUE_ON_NGINX_SRC=../../docker/vue-on-nginx
+              WEB_SRC=../../web
+          - context: docker/api
             image_name: scv-api
             sarif_file: trivy-api.sarif
-            docker_file: docker/web/Dockerfile.release
+            docker_file: docker/api/Dockerfile.release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,6 +47,7 @@ jobs:
           push: false
           load: true
           tags: ${{matrix.image_name}}:latest
+          build-args: ${{matrix.docker_build_args}}
 
       - name: Run Trivy vulnerability scanner- save to sarif file
         uses: aquasecurity/trivy-action@cf990b19d84bbbe1eb8833659989a7c1029132e3
