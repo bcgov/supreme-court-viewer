@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 env:
   IMAGE_NAME: api
-  IMAGE_TAG_PREFIX: dev
+  DEPLOYMENT_ENV: dev
   WORKING_DIRECTORY: ./
   GITOPS_BRANCH: develop
   GITOPS_LICENCE_PLATE: b3c707
@@ -33,7 +33,7 @@ jobs:
         uses: ./.github/workflows/actions/docker-build-push-artifactory
         with:
           image_name: ${{ env.IMAGE_NAME }}
-          image_tag: ${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
+          image_tag: ${{ env.DEPLOYMENT_ENV }}-${{ steps.short_sha.outputs.SHORT_SHA }}
           artifactory_username: ${{ secrets.ARTIFACTORY_USERNAME }}
           artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
           artifactory_repo: ${{ env.ARTIFACTORY_REPO }}
@@ -48,6 +48,6 @@ jobs:
           licence_plate: ${{ env.GITOPS_LICENCE_PLATE }}
           gitops_branch: ${{ env.GITOPS_BRANCH }}
           gitops_ssh_key: ${{ secrets.GIT_OPS_SSH_KEY }}
-          image_tag: ${{ env.IMAGE_TAG_PREFIX }}-${{ steps.short_sha.outputs.SHORT_SHA }}
+          image_tag: ${{ env.DEPLOYMENT_ENV }}-${{ steps.short_sha.outputs.SHORT_SHA }}
           helm_property: apitag
-          helm_paths: "api/values.yaml ../develop/values.yaml"
+          helm_paths: api/values.yaml ../deploy/${{ env.DEPLOYMENT_ENV }}_values.yaml
