@@ -21,7 +21,7 @@ namespace Scv.Api.Helpers
             };
 
             var portComponent =
-                string.IsNullOrEmpty(forwardedPort) || forwardedPort == "80" || forwardedPort == "443"
+                string.IsNullOrEmpty(forwardedPort) || forwardedPort == "80" || forwardedPort == "443" || forwardedPort == "8080"
                     ? ""
                     : $":{forwardedPort}";
 
