@@ -58,4 +58,4 @@ jobs:
           gitops_ssh_key: ${{ secrets.GIT_OPS_SSH_KEY }}
           image_tag: ${{ env.DEPLOYMENT_ENV }}-${{ steps.short_sha.outputs.SHORT_SHA }}
           helm_property: webtag
-          helm_paths: web/values.yaml ../deploy/${{ env.DEPLOYMENT_ENV }}_values.yaml
+          helm_paths: web/values.yaml web-sm/values.yaml ../deploy/${{ env.DEPLOYMENT_ENV }}_values.yaml
