@@ -69,17 +69,23 @@ ARG NODE_VERSION
 ARG WEB_SRC
 ARG NPM_INSTALL_ARGS
 
-USER 104
+USER root
 WORKDIR /opt/app-root/src
 
 # Copy package.json and package-lock.json
-COPY --chown=104:node ${WEB_SRC}/package*.json .
+COPY ${WEB_SRC}/package*.json .
 
+# Switch from root to 104 to install package (REMOVE WHEN MIGRATING TO VUE3)
+USER 104 
 # Install packages
 RUN npm install ${NPM_INSTALL_ARGS}
+USER root
 
 # Copy the source code
-COPY --chown=104:node ${WEB_SRC} .
+COPY ${WEB_SRC} .
+
+# Fix permissisons for installing with user 104 (REMOVE WHEN MIGRATING TO VUE3)
+RUN chmod -R 674 ./
 
 RUN npm run build 
 
