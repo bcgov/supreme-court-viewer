@@ -69,18 +69,17 @@ ARG NODE_VERSION
 ARG WEB_SRC
 ARG NPM_INSTALL_ARGS
 
-USER root
 WORKDIR /opt/app-root/src
 
 # Copy package.json and package-lock.json
 COPY --chmod=674 ${WEB_SRC}/package*.json .
 
 # NPM INSTALL fails as root, this is due to a legacy SCSS package, this is not required in VUE3 (REMOVE WHEN UPGRADING)
-USER 104 
+# USER 104 
 # Install packages
 RUN npm install ${NPM_INSTALL_ARGS}
 # NPM INSTALL fails as root, this is due to a legacy SCSS package, this is not required in VUE3 (REMOVE WHEN UPGRADING)
-USER root
+# USER root
 
 # Copy the source code
 COPY --chmod=674 ${WEB_SRC} .
