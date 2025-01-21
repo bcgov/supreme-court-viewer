@@ -75,14 +75,14 @@ ARG NPM_INSTALL_ARGS
 # USER root
 WORKDIR /opt/app-root/src
 
-# Copy package.json and package-lock.json
-COPY --chmod=674 ${WEB_SRC}/package*.json .
+# Copy package.json and package-lock.json. Read only set for all categories to avoid permission issues on install.
+COPY --chmod=444 ${WEB_SRC}/package*.json .
 
 # Install packages
 RUN npm install ${NPM_INSTALL_ARGS}
 
-# Copy the source code
-COPY --chmod=674 ${WEB_SRC} .
+# Copy the source code. Read set for all categories to avoid permission issues on build.
+COPY --chmod=444 ${WEB_SRC} .
 
 RUN npm run build 
 
