@@ -1,11 +1,28 @@
 ﻿using System;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Scv.Api.Helpers
 {
     public static class XForwardedForHelper
     {
+        private static readonly ILogger _logger;
+
+        static XForwardedForHelper()
+        {
+            using ILoggerFactory factory = LoggerFactory.Create(builder => builder.AddConsole());
+            _logger = factory.CreateLogger("XForwardedForHelper");
+        }
+
         public static string BuildUrlString(string forwardedHost, string forwardedPort, string baseUrl, string remainingPath = "", string query = "")
         {
+            // _logger.LogInformation($"XForwardedForHelper - forwardedHost: `{forwardedHost}`, forwardedPort: `{forwardedPort}`, baseUrl: `{baseUrl}`, remainingPath: `{remainingPath}`, query: `{query}`");
+
+            // Default: Assume the code is running as Court Viewer locally, unless specified.
+            forwardedHost = forwardedHost.IsNullOrEmpty() ? "localhost" : forwardedHost;
+            forwardedPort = forwardedPort.IsNullOrEmpty() ? "8080" : forwardedPort;
+            baseUrl = baseUrl.IsNullOrEmpty() ? "/court-viewer/" : baseUrl;
+
             var sanitizedPath = baseUrl;
             var isLocalhost = forwardedHost.Contains("localhost");
             if (!string.IsNullOrEmpty(remainingPath))
@@ -34,6 +51,7 @@ namespace Scv.Api.Helpers
                 uriBuilder.Port = port;
             }
 
+            _logger.LogInformation($"uriBuilder.Uri.AbsoluteUri `{uriBuilder.Uri.AbsoluteUri}`");
             return uriBuilder.Uri.AbsoluteUri;
         }
     }
