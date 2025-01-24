@@ -69,26 +69,26 @@ ARG NODE_VERSION
 ARG WEB_SRC
 ARG NPM_INSTALL_ARGS
 
-USER root
+# npm install fails with EACCES: permission denied when running as root user for a scss package used in Vue 2.
+# The workaround is to run the build as a non-root user and set the permissions on the files copied to the image.
+# This should be revisited when the application is upgraded to Vue 3. See bcgov/jasper repo for guidance on Vue 3 ready image.
+# USER root
 WORKDIR /opt/app-root/src
 
-# Copy package.json and package-lock.json
-COPY ${WEB_SRC}/package*.json .
+# Copy package.json and package-lock.json. Read only set for all categories to avoid permission issues on install.
+# User - no specific access required
+# Group - Read/Write to update package-lock.json during npm install
+# Others - no access keeping with zero trust principle.
+COPY --chmod=060 ${WEB_SRC}/package*.json .
 
-# Fix file permissisons for Github agent(REMOVE WHEN MIGRATING TO VUE3)
-RUN chmod -R 674 ./
-
-# Switch from root to 104 to install package (REMOVE WHEN MIGRATING TO VUE3)
-USER 104 
 # Install packages
 RUN npm install ${NPM_INSTALL_ARGS}
-USER root
 
-# Copy the source code
-COPY ${WEB_SRC} .
-
-# Fix permissisons from installing with user 104 (REMOVE WHEN MIGRATING TO VUE3)
-RUN chmod -R 674 ./
+# Copy the source code. Read set for all categories to avoid permission issues on build.
+# User - no specific access required
+# Group - Read/Write/Execute to build the application, create dist folder and execute vue CLI commands.
+# Others - no access keeping with zero trust principle.
+COPY --chmod=070 ${WEB_SRC} .
 
 RUN npm run build 
 
@@ -107,8 +107,8 @@ COPY ${VUE_ON_NGINX_SRC}/s2i/bin/fix-base-url /usr/libexec/s2i/fix-base-url
 
 # Fix permissions.
 USER root
-RUN chmod 674 /usr/libexec/s2i/fix-base-url
-RUN chmod -R 674 /tmp/app/dist/
+RUN chmod u+rw,g+rwx,o+r /usr/libexec/s2i/fix-base-url
+RUN chmod -R u+rw,g+rwx,o+r /tmp/app/dist/
 
 # From nginx-runtime.
 USER 104
@@ -117,4 +117,4 @@ USER 104
 # short circuit the s2i lifecycle.
 # The runtime image "loses" its s2i runtime voodoo when it 
 # is used in a dockerStrategy, which is why the explicit `CMD` is necessary
-CMD  /usr/libexec/s2i/fix-base-url
+CMD  ["/usr/libexec/s2i/fix-base-url"]
