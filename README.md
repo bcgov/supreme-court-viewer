@@ -27,6 +27,40 @@ For backend API documentation refer to the Swagger API documentation page availa
 
 To report bugs/issues/feature requests, please file an [issue](../../issues).
 
+## Deployment Process
+
+```mermaid
+flowchart TD
+ subgraph Pipeline["Build on Merge"]
+    direction LR
+        E1(Docker Build)
+        E2(Push Image to Artifactory)
+        E3(Update gitops repo)
+  end
+ subgraph ArgoCD["Argo CD"]
+    direction LR
+        F1(Detect Change)
+        F2(Synchronize Charts)
+        F3(Deploy to OpenShift)
+  end
+    E1 --> E2 -- SHA tag --> E3
+    F1 --> F2 --> F3
+    A("Perform Code Changes")
+    A --> B("Pull Request")
+    B --> C("Merge PR")
+    C --> E[["GitHub Actions"]]
+    E --> F[["Argo CD"]]
+    E -.- Pipeline
+    F -.- ArgoCD
+     E:::gitActionStyle
+     F:::argoStlye
+     Pipeline:::gitActionStyle
+     ArgoCD:::argoStlye
+    classDef default fill: #FFF
+    classDef gitActionStyle stroke: #AA00FF,fill: #FFF
+    classDef argoStlye stroke: #00FF88,fill: #FFF
+```
+
 ## How to Contribute
 
 If you would like to contribute, please see our [CONTRIBUTING](./CONTRIBUTING.md) guidelines.
