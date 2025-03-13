@@ -47,18 +47,31 @@ flowchart TD
     F1 --> F2 --> F3
     A("Perform Code Changes")
     A --> B("Pull Request")
-    B --> C("Merge PR")
+    B --> C@{shape: event, label: "Merge PR"}
     C --> E[["GitHub Actions"]]
     E --> F[["Argo CD"]]
     E -.- Pipeline
     F -.- ArgoCD
-     E:::gitActionStyle
-     F:::argoStlye
-     Pipeline:::gitActionStyle
-     ArgoCD:::argoStlye
-    classDef default fill: #FFF
-    classDef gitActionStyle stroke: #AA00FF,fill: #FFF
-    classDef argoStlye stroke: #00FF88,fill: #FFF
+
+%% Styling
+  E:::gitActionStyle
+  F:::argoStlye
+  Pipeline:::gitActionStyle
+  ArgoCD:::argoStlye
+  classDef default fill: #FFF
+  classDef gitActionStyle stroke: #AA00FF,fill: #FFF
+  classDef argoStlye stroke: #00FF88,fill: #FFF
+```
+
+### GitOps flow (only release context)
+This diagram hints at the process to release to the affiliated environments. This does not indicate the required work to configuring
+```mermaid
+flowchart LR
+        G1(DEV: Develop branch updated by actions)
+        G1 --PR--> G2(TEST: Manually promoted to test)
+        G2 --PR--> G3(PROD: Manually promoted to prod)
+%% Styling
+  classDef default fill: #FFF
 ```
 
 ## How to Contribute
