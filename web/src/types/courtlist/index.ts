@@ -48,6 +48,7 @@ export interface civilListInfoType {
     notes: civilNotesInfoType;
     noteExist: boolean;
     listClass: string;
+    virtualChamberLink: string[];
 }
 
 export interface hearingRestrictionInfoType {

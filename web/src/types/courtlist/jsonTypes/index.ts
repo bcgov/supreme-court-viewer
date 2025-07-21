@@ -334,6 +334,7 @@ export interface courtListType {
     arrestWarrant: arrestWarrantType[];
     unscheduledDocument: civilUnscheduledDocumentType[];
     orderToVary: civilOrderToVaryType[];
+    virtualChamberLink: string[];
     additionalProperties: AdditionalProperties;
     additionalProp1: {};
     additionalProp2: {};

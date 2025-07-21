@@ -147,6 +147,16 @@
             </b-button>
           </div>
         </template>
+        
+        <template v-slot:cell(order)="data">
+          <b-button
+            v-if="data.item.virtualChamberLink.length > 0 "
+            :variant="'outline-primary border-white text-' + data.item.listClass"
+            @click="openOrder(data)"
+          >
+            <b-icon-pen />
+          </b-button>
+        </template>
 
         <template v-slot:cell(counsel)="data">
           <div v-if="data.item.listClass == 'criminal'" :style="data.field.cellStyle">
@@ -383,6 +393,7 @@ export default class CourtListLayout extends Vue {
       tdClass: "border-top",
       cellStyle: "margin-top: 3px; font-size: 16px; font-weight:normal;",
     },
+    { key: "order", label: "OR", tdClass: "border-top", thClass: "text-center", cellStyle: "font-size:16px; font-weight: bold;" },
     { key: "fileNumber", label: "File Number", tdClass: "border-top", cellStyle: "font-size:16px" },
     { key: "parties", label: "Parties", tdClass: "border-top", cellStyle: "font-size:16px; font-weight: bold;" },
     { key: "accused", label: "Accused", tdClass: "border-top", cellStyle: "font-size:16px; font-weight: bold;" },
@@ -448,10 +459,10 @@ export default class CourtListLayout extends Vue {
     await this.BuildReferenceDocsList();
     this.fields = JSON.parse(JSON.stringify(this.initialFields));
     if (this.criminalCourtListJson.length == 0) {
-      this.fields.splice(4, 1);
+      this.fields.splice(5, 1);
     }
     if (this.civilCourtListJson.length == 0) {
-      this.fields.splice(3, 1);
+      this.fields.splice(4, 1);
     }
     if (this.courtList.length) {
       this.isDataReady = true;
@@ -630,6 +641,7 @@ export default class CourtListLayout extends Vue {
       civilListInfo.seq = jcivilList.courtListPrintSortNumber ? parseInt(jcivilList.courtListPrintSortNumber) : 0;
 
       civilListInfo.fileNumber = jcivilList.physicalFile.fileNumber;
+      civilListInfo.virtualChamberLink = jcivilList.virtualChamberLink || [];
       civilListInfo.tag = civilListInfo.fileNumber + "-" + civilListInfo.seq;
       civilListInfo.icons = [];
       const iconInfo: IconInfoType[] = [];
@@ -788,6 +800,13 @@ export default class CourtListLayout extends Vue {
   public downloadProvidedDocument(data) {
     const target = this.referenceDocs.find(rd => rd.fileId === data.item.fileId);
     shared.openDocumentsPdf(CourtDocumentType.ProvidedCivil, target.doc[0]);
+  }
+  
+  public openOrder(data) {
+    const url = data.item.virtualChamberLink?.[0];
+    if (url) {
+      window.open(url, '_blank');
+    }
   }
 
   public async BuildReferenceDocsList() {
