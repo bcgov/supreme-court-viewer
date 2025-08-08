@@ -109,7 +109,7 @@ namespace Scv.Api.Services.Files
 
             //Return the basic entry without doing a lookup.
             if (fileIdAndAppearanceDate.Count == 1)
-                return new List<RedactedCivilFileDetailResponse> { new RedactedCivilFileDetailResponse { PhysicalFileId = fileIdAndAppearanceDate.First().PhysicalFileId }} ;
+                return new List<RedactedCivilFileDetailResponse> { new RedactedCivilFileDetailResponse { PhysicalFileId = fileIdAndAppearanceDate.First().PhysicalFileId } };
 
             var fileDetailTasks = new List<Task<CivilFileDetailResponse>>();
             foreach (var fileId in fileIdAndAppearanceDate)
@@ -152,15 +152,30 @@ namespace Scv.Api.Services.Files
             foreach (var document in PopulateDetailCsrsDocuments(fileDetail.Appearance))
                 if (!isVcUser)
                     detail.Document.Add(document);
-   
+
             detail = await PopulateBaseDetail(detail);
             detail.Appearances = appearances;
+
+            var targetAppearance = appearances?.ApprDetail?.FirstOrDefault();
+
+            ClCivilCourtList civilCourtList = null;
+            var agencyId = targetAppearance.CourtLocationId;
+            if (agencyId != null)
+            {
+                async Task<CourtList> CourtList() => await _filesClient.FilesCourtlistAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyId, targetAppearance.CourtRoomCd, targetAppearance.AppearanceDt, "CV", detail.FileNumberTxt);
+                var courtListTask = _cache.GetOrAddAsync($"CivilCourtList-{agencyId}-{targetAppearance.CourtRoomCd}-{targetAppearance.AppearanceDt}-{detail.FileNumberTxt}-{_requestAgencyIdentifierId}", CourtList);
+                var courtList = await courtListTask;
+                civilCourtList = courtList.CivilCourtList.FirstOrDefault(cl => cl.PhysicalFile.PhysicalFileID == fileId);
+            }
+
+            detail.CivilCourtList = civilCourtList;
 
             var fileContentCivilFile = fileContent?.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
             detail.Party = await PopulateDetailParties(detail.Party);
             detail.Document = await PopulateDetailDocuments(detail.Document, fileContentCivilFile, isVcUser, isStaff);
             detail.HearingRestriction = await PopulateDetailHearingRestrictions(fileDetail.HearingRestriction);
-            if (isVcUser) { 
+            if (isVcUser)
+            {
                 //SCV-266 - Disable comments for VC Users.
                 foreach (var document in detail.Document)
                     document.CommentTxt = "";
@@ -307,7 +322,7 @@ namespace Scv.Api.Services.Files
             detail.CourtLevelDescription = await _lookupService.GetCourtLevelDescription(detail.CourtLevelCd.ToString());
             detail.ActivityClassCd = await _lookupService.GetActivityClassCdLong(detail.CourtClassCd.ToString());
             detail.ActivityClassDesc = await _lookupService.GetActivityClassCdShort(detail.CourtClassCd.ToString());
-            //Some lookups have LongDesc and ShortDesc the same. 
+            //Some lookups have LongDesc and ShortDesc the same.
             if (detail.ActivityClassCd == detail.ActivityClassDesc)
                 detail.ActivityClassCd = detail?.CourtClassCd.ToString();
             return detail;
@@ -427,7 +442,7 @@ namespace Scv.Api.Services.Files
                     party.Representative = _mapper.Map<ICollection<CivilRepresentative>>(courtListParty.Representative);
                     foreach (var representative in party.Representative)
                     {
-                        representative.AttendanceMethodDesc = await _lookupService.GetCivilAssetsDescription(representative.AttendanceMethodCd); 
+                        representative.AttendanceMethodDesc = await _lookupService.GetCivilAssetsDescription(representative.AttendanceMethodCd);
                     }
                     party.LegalRepresentative = courtListParty.LegalRepresentative;
                 }
@@ -443,13 +458,13 @@ namespace Scv.Api.Services.Files
                     //Update the counsel with their appearanceMethod.
                     foreach (var counsel in targetParticipant.Counsel)
                     {
-                        //We match on counselName. 
-                        //Not the best idea of matching data, but we aren't provided a counselId for Civil FileContent.  Although we are provided a counselId in FileDetails, CourtList. 
+                        //We match on counselName.
+                        //Not the best idea of matching data, but we aren't provided a counselId for Civil FileContent.  Although we are provided a counselId in FileDetails, CourtList.
                         //TEST Environment - Civil Case 2151 - Appearance 9042, demonstrates this.
 
                         if (!counsel.AdditionalProperties.ContainsKey("counselName"))
                             continue;
-                  
+
                         var targetCounsel = party.Counsel?.FirstOrDefault(c => c.CounselFullName == counsel.CounselName);
                         if (targetCounsel == null)
                             continue;
@@ -473,7 +488,7 @@ namespace Scv.Api.Services.Files
             {
                 document.Category = _lookupService.GetDocumentCategory(document.DocumentTypeCd);
                 document.DocumentTypeDescription = await _lookupService.GetDocumentDescriptionAsync(document.DocumentTypeCd);
-				document.ImageId = document.SealedYN != "N" ? null : document.ImageId;
+                document.ImageId = document.SealedYN != "N" ? null : document.ImageId;
                 foreach (var issue in document.Issue)
                 {
                     issue.IssueTypeDesc = await _lookupService.GetCivilDocumentIssueType(issue.IssueTypeCd);

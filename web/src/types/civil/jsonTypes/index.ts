@@ -1,5 +1,5 @@
-import {AdditionalProperties} from '../../common';
-import { civilFiledByType } from '@/types/courtlist/jsonTypes';
+import { civilCourtListType, civilFiledByType } from '@/types/courtlist/jsonTypes';
+import { AdditionalProperties } from '../../common';
 
 export interface partyCounselType {
     counselId: string;
@@ -204,4 +204,5 @@ export interface civilFileDetailsType {
     referenceDocument: civilReferenceDocumentJsonType[];
     hearingRestriction: civilHearingRestrictionType[];
     appearances: civilAppearancesType
+    civilCourtList: civilCourtListType
 }

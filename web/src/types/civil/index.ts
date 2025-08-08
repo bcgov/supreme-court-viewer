@@ -1,5 +1,5 @@
-import {AdjudicatorRestrictionsInfoType} from '../common';
-import {civilFileDetailsType} from '../civil/jsonTypes';
+import { civilFileDetailsType } from '../civil/jsonTypes';
+import { AdjudicatorRestrictionsInfoType } from '../common';
 
 export interface partiesInfoType {
     partyId: string;
