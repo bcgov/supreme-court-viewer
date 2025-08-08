@@ -39,11 +39,15 @@ namespace Scv.Api.Models.Civil.Detail
         public IList<CivilDocument> Document { get; set; }
 
         public ICollection<CvfcRefDocument3> ReferenceDocument { get; set; }
+
         /// <summary>
-        /// Extended hearing restriction object. 
+        /// Extended hearing restriction object.
         /// </summary>
         public ICollection<CivilHearingRestriction> HearingRestriction { get; set; }
+
         public CivilAppearanceResponse Appearances { get; set; }
+        public ClCivilCourtList CivilCourtList { get; set; }
+
         //Used just for searching.
         public string NextApprDt { get; set; }
     }

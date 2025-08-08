@@ -3138,6 +3138,9 @@ namespace JCCommon.Clients.FileServices
         [Newtonsoft.Json.JsonProperty("orderToVary", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<ClOrderToVary> OrderToVary { get; set; }
 
+        [Newtonsoft.Json.JsonProperty("virtualChamberLink", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<string> VirtualChamberLink { get; set; }
+
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
         [Newtonsoft.Json.JsonExtensionData]
