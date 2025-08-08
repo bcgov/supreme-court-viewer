@@ -39,7 +39,7 @@ export default class CivilSidePanel extends Vue {
     public UpdateShowSections!: (newShowSections: civilShowSectionsType) => void
     
     panelItems = [ 
-       'Case Details', 'Future Appearances', 'Past Appearances', 'All Documents', 'Documents', 'Provided Documents'    
+       'Case Details', 'Future Appearances', 'Past Appearances', 'All Documents', 'Documents', 'Provided Documents', 'Orders'    
     ];
 
     public SelectPanelItem(panelItem) {

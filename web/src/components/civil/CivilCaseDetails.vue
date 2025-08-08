@@ -72,6 +72,7 @@
           <civil-comment-notes v-if="showCaseDetails" />
           <civil-documents-view v-if="showDocuments || showAllDocuments" />
           <civil-provided-documents-view v-if="showProvidedDocuments || showAllDocuments" />
+          <civil-orders-view v-if="showOrders" />
           <civil-past-appearances v-if="showPastAppearances" />
           <civil-future-appearances v-if="showFutureAppearances" />
           <b-card><br /></b-card>
@@ -91,48 +92,49 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { namespace } from "vuex-class";
-import * as _ from "underscore";
-import CivilDocumentsView from "@components/civil/CivilDocumentsView.vue";
-import CivilProvidedDocumentsView from "@components/civil/CivilProvidedDocumentsView.vue";
-import CivilPastAppearances from "@components/civil/CivilPastAppearances.vue";
-import CivilFutureAppearances from "@components/civil/CivilFutureAppearances.vue";
-import CivilAdjudicatorRestrictions from "@components/civil/CivilAdjudicatorRestrictions.vue";
-import CivilCommentNotes from "@components/civil/CivilCommentNotes.vue";
-import CivilParties from "@components/civil/CivilParties.vue";
-import CivilHeaderTop from "@components/civil/CivilHeaderTop.vue";
-import CivilHeader from "@components/civil/CivilHeader.vue";
-import CivilSidePanel from "@components/civil/CivilSidePanel.vue";
 import {
   civilFileInformationType,
-  partiesInfoType,
-  documentsInfoType,
-  summaryDocumentsInfoType,
-  referenceDocumentsInfoType,
+  civilShowSectionsType,
   csrRequestsInfoType,
+  documentsInfoType,
+  partiesInfoType,
+  referenceDocumentsInfoType,
+  summaryDocumentsInfoType,
 } from "@/types/civil";
-import {
-  InputNamesType,
-  AdjudicatorRestrictionsInfoType,
-  ArchiveInfoType,
-  DocumentRequestsInfoType,
-} from "@/types/common";
-import "@store/modules/CommonInformation";
-import "@store/modules/CivilFileInformation";
-import CustomOverlay from "../CustomOverlay.vue";
 import {
   civilDocumentType,
   civilHearingRestrictionType,
   civilReferenceDocumentJsonType,
   partyType,
 } from "@/types/civil/jsonTypes";
-import base64url from "base64url";
-import shared from "../shared";
+import {
+  AdjudicatorRestrictionsInfoType,
+  ArchiveInfoType,
+  DocumentRequestsInfoType,
+  InputNamesType,
+} from "@/types/common";
 import { CourtDocumentType, DocumentData } from "@/types/shared";
+import CivilAdjudicatorRestrictions from "@components/civil/CivilAdjudicatorRestrictions.vue";
+import CivilCommentNotes from "@components/civil/CivilCommentNotes.vue";
+import CivilDocumentsView from "@components/civil/CivilDocumentsView.vue";
+import CivilFutureAppearances from "@components/civil/CivilFutureAppearances.vue";
+import CivilHeader from "@components/civil/CivilHeader.vue";
+import CivilHeaderTop from "@components/civil/CivilHeaderTop.vue";
+import CivilOrdersView from "@components/civil/CivilOrdersView.vue";
+import CivilParties from "@components/civil/CivilParties.vue";
+import CivilPastAppearances from "@components/civil/CivilPastAppearances.vue";
+import CivilProvidedDocumentsView from "@components/civil/CivilProvidedDocumentsView.vue";
+import CivilSidePanel from "@components/civil/CivilSidePanel.vue";
+import "@store/modules/CivilFileInformation";
+import "@store/modules/CommonInformation";
+import base64url from "base64url";
+import * as _ from "underscore";
+import { Component, Vue } from "vue-property-decorator";
+import { namespace } from "vuex-class";
+import CustomOverlay from "../CustomOverlay.vue";
+import shared from "../shared";
 const civilState = namespace("CivilFileInformation");
 const commonState = namespace("CommonInformation");
-import {civilShowSectionsType} from '@/types/civil';
 
 @Component({
   components: {
@@ -140,6 +142,7 @@ import {civilShowSectionsType} from '@/types/civil';
     CivilCommentNotes,
     CivilDocumentsView,
     CivilProvidedDocumentsView,
+    CivilOrdersView,
     CivilPastAppearances,
     CivilFutureAppearances,
     CivilParties,
@@ -202,14 +205,15 @@ export default class CivilCaseDetails extends Vue {
     "All Documents",
     "Documents",
     "Provided Documents",
+    "Orders",
   ];
 
   mounted() {
     this.civilFileInformation.fileNumber = this.$route.params.fileNumber;
     this.UpdateCivilFile(this.civilFileInformation);
     this.getFileDetails();
-
     this.navigateToSection(this.$route.params.section);
+    
   }
 
   public navigateToSection(section): void {
@@ -244,6 +248,7 @@ export default class CivilCaseDetails extends Vue {
       )
       .then((data) => {
         if (data) {
+          
           this.civilFileInformation.detailsData = data;
           this.partiesJson = data.party;
           this.adjudicatorRestrictionsJson = data.hearingRestriction;
@@ -409,6 +414,10 @@ export default class CivilCaseDetails extends Vue {
 
   get showProvidedDocuments() {
     return (this.showSections["Case Details"] || this.showSections["Provided Documents"]) && this.isDataReady;
+  }
+
+  get showOrders() {
+    return (this.showSections["Case Details"] || this.showSections["Orders"]) && this.isDataReady;
   }
 
   get showDocuments() {

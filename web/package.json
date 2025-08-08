@@ -24,7 +24,7 @@
     "@types/underscore": "^1.10.0",
     "base64url": "^3.0.1",
     "bootstrap": "^4.4.1",
-    "bootstrap-vue": "^2.12.0",
+    "bootstrap-vue": "^2.23.1",
     "core-js": "^3.6.5",
     "cross-env": "^7.0.3",
     "intersection-observer": "^0.10.0",

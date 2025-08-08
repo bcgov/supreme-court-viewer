@@ -1,4 +1,4 @@
-import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
+import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
 @Module({
   namespaced: true
@@ -14,7 +14,8 @@ class CivilFileInformation extends VuexModule {
     'Past Appearances': false,
     'All Documents': false,
     'Documents': false,
-    'Provided Documents': false
+    'Provided Documents': false,
+    'Orders': false
   }
 
   public civilAppearanceInfo = {}
