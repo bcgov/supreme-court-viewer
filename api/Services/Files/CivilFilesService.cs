@@ -157,18 +157,18 @@ namespace Scv.Api.Services.Files
             detail.Appearances = appearances;
 
             var targetAppearance = appearances?.ApprDetail?.FirstOrDefault();
-
-            ClCivilCourtList civilCourtList = null;
-            var agencyId = targetAppearance.CourtLocationId;
-            if (agencyId != null)
+            if (targetAppearance != null)
             {
-                async Task<CourtList> CourtList() => await _filesClient.FilesCourtlistAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyId, targetAppearance.CourtRoomCd, targetAppearance.AppearanceDt, "CV", detail.FileNumberTxt);
-                var courtListTask = _cache.GetOrAddAsync($"CivilCourtList-{agencyId}-{targetAppearance.CourtRoomCd}-{targetAppearance.AppearanceDt}-{detail.FileNumberTxt}-{_requestAgencyIdentifierId}", CourtList);
-                var courtList = await courtListTask;
-                civilCourtList = courtList.CivilCourtList.FirstOrDefault(cl => cl.PhysicalFile.PhysicalFileID == fileId);
+                var agencyId = targetAppearance.CourtLocationId;
+                var appearanceDateString = Convert.ToDateTime(targetAppearance.AppearanceDt).ToString("yyyy-MM-dd");
+                if (agencyId != null)
+                {
+                    async Task<ICollection<ClCivilCourtList>> CivilCourtList() => (await _filesClient.FilesCourtlistAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyId, targetAppearance.CourtRoomCd, appearanceDateString, string.Empty, string.Empty)).CivilCourtList;
+                    var civilCourtListTask = _cache.GetOrAddAsync($"CivilCourtList-{agencyId}-{targetAppearance.CourtRoomCd}-{appearanceDateString}-{_requestAgencyIdentifierId}", CivilCourtList);
+                    var civilCourtList = await civilCourtListTask;
+                    detail.CivilCourtList = civilCourtList?.FirstOrDefault(cl => cl.PhysicalFile.PhysicalFileID == fileId);
+                }
             }
-
-            detail.CivilCourtList = civilCourtList;
 
             var fileContentCivilFile = fileContent?.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
             detail.Party = await PopulateDetailParties(detail.Party);
