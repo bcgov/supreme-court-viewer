@@ -112,7 +112,9 @@
 
         <template v-slot:cell(parties)="data">
           <b-button
-            v-if="data.item.listClass != 'criminal' && data.value.length > 0"
+            v-if="
+              data.item.listClass != 'criminal' && (data.value || []).length > 0
+            "
             :style="data.field.cellStyle"
             size="sm"
             @click="OpenCivilFilePage(data, 'All Documents')"
@@ -129,7 +131,8 @@
           </b-button>
           <b-button
             v-else-if="
-              data.item.listClass != 'criminal' && data.value.length == 0
+              data.item.listClass != 'criminal' &&
+                (data.value || []).length == 0
             "
             :style="data.field.cellStyle"
             size="sm"
@@ -186,7 +189,7 @@
 
         <template v-slot:cell(order)="data">
           <b-button
-            v-if="data.item.virtualChamberLink.length == 1"
+            v-if="(data.item.virtualChamberLink || []).length == 1"
             :variant="
               'outline-primary border-white text-' + data.item.listClass
             "
@@ -195,7 +198,7 @@
             <b-icon-pen-fill class="base" />
           </b-button>
           <b-button
-            v-if="data.item.virtualChamberLink.length > 1"
+            v-if="(data.item.virtualChamberLink || []).length > 1"
             :variant="
               'outline-primary border-white text-' + data.item.listClass
             "
@@ -942,12 +945,12 @@ export default class CourtListLayout extends Vue {
       let firstParty = partyNames.split("/")[0].trim();
       let secondParty = partyNames.split("/")[1].trim();
 
-      if (firstParty.length > maximumFullNameLength) {
+      if ((firstParty || []).length > maximumFullNameLength) {
         firstParty = firstParty.substr(0, maximumFullNameLength) + " ...";
         truncApplied = true;
       }
 
-      if (secondParty.length > maximumFullNameLength) {
+      if ((secondParty || []).length > maximumFullNameLength) {
         secondParty = secondParty.substr(0, maximumFullNameLength) + " ...";
         truncApplied = true;
       }
