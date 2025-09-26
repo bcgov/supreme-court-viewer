@@ -186,7 +186,7 @@
 
         <template v-slot:cell(order)="data">
           <b-button
-            v-if="data.item.virtualChamberLink.length == 1"
+            v-if="(data.item.virtualChamberLink || []).length == 1"
             :variant="
               'outline-primary border-white text-' + data.item.listClass
             "
@@ -195,7 +195,7 @@
             <b-icon-pen-fill class="base" />
           </b-button>
           <b-button
-            v-if="data.item.virtualChamberLink.length > 1"
+            v-if="(data.item.virtualChamberLink || []).length > 1"
             :variant="
               'outline-primary border-white text-' + data.item.listClass
             "
