@@ -108,6 +108,47 @@ namespace Scv.Api.Controllers
             });
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("request-criminal-file-access")]
+        public async Task<IActionResult> RequestCriminalFileAccess([FromBody] RequestCriminalFileAccess request)
+        {
+            if (string.IsNullOrEmpty(request.FileId) || string.IsNullOrEmpty(request.UserId))
+                return BadRequest();
+
+            if (!User.IsServiceAccountUser())
+                return Forbid();
+
+            var agencyId = string.IsNullOrEmpty(request.AgencyId) ? "" : AesGcmEncryption.Encrypt(request.AgencyId);
+            var partId = string.IsNullOrEmpty(request.PartId) ? "" : AesGcmEncryption.Encrypt(request.PartId);
+
+            var expiryMinutes = float.Parse(Configuration.GetNonEmptyValue("RequestCriminalFileAccessMinutes"));
+            await Db.RequestFileAccess.AddAsync(new RequestFileAccess
+            {
+                FileId = request.FileId,
+                UserId = request.UserId,
+                UserName = request.UserName,
+                AgencyId = agencyId,
+                PartId = partId,
+                Requested = DateTimeOffset.UtcNow,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(expiryMinutes)
+            });
+            await Db.SaveChangesAsync();
+
+            var forwardedHost = Request.Headers["X-Forwarded-Host"];
+            var forwardedPort = Request.Headers["X-Forwarded-Port"];
+            var baseUrl = Request.Headers["X-Base-Href"];
+
+            return Ok(new
+            {
+                Url = XForwardedForHelper.BuildUrlString(
+                    forwardedHost,
+                    forwardedPort,
+                    baseUrl,
+                    $"criminal-file/{request.FileId}",
+                    "fromA2A=true")
+            });
+        }
+
 
         /// <summary>
         /// Provides a way for the front-end to get info about the user.
