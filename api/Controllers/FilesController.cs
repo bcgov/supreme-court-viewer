@@ -40,13 +40,14 @@ namespace Scv.Api.Controllers
         private readonly CivilFilesService _civilFilesService;
         private readonly CriminalFilesService _criminalFilesService;
         private readonly VcCivilFileAccessHandler _vcCivilFileAccessHandler;
+        private readonly VcCriminalFileAccessHandler _vcCriminalFileAccessHandler;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         #endregion Variables
 
         #region Constructor
 
-        public FilesController(IConfiguration configuration, ILogger<FilesController> logger, FilesService filesService, VcCivilFileAccessHandler vcCivilFileAccessHandler, IHttpContextAccessor httpContextAccessor)
+        public FilesController(IConfiguration configuration, ILogger<FilesController> logger, FilesService filesService, VcCivilFileAccessHandler vcCivilFileAccessHandler, VcCriminalFileAccessHandler vcCriminalFileAccessHandler, IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
             _logger = logger;
@@ -54,6 +55,7 @@ namespace Scv.Api.Controllers
             _civilFilesService = filesService.Civil;
             _criminalFilesService = filesService.Criminal;
             _vcCivilFileAccessHandler = vcCivilFileAccessHandler;
+            _vcCriminalFileAccessHandler = vcCriminalFileAccessHandler;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -204,6 +206,9 @@ namespace Scv.Api.Controllers
         [Route("criminal/{fileId}")]
         public async Task<ActionResult<RedactedCriminalFileDetailResponse>> GetCriminalFileDetailByFileId(string fileId)
         {
+
+            if (User.IsVcUser() && !await _vcCriminalFileAccessHandler.HasCriminalFileAccess(User, fileId))
+                return Forbid();
             var redactedCriminalFileDetailResponse = await _criminalFilesService.FileIdAsync(fileId);
             if (redactedCriminalFileDetailResponse?.JustinNo == null)
                 throw new NotFoundException("Couldn't find criminal file with this id.");
