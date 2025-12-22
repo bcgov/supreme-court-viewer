@@ -19,6 +19,7 @@ using Scv.Db.Models.Auth;
 namespace Scv.Api.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class AuthController : ControllerBase
     {
         public ScvDbContext Db { get; }
@@ -32,7 +33,7 @@ namespace Scv.Api.Controllers
             AesGcmEncryption = aesGcmEncryption;
         }
         /// <summary>
-        /// This cannot be called from AJAX or SWAGGER. It must be loaded in the browser location, because it brings the user to the SSO page. 
+        /// This cannot be called from AJAX or SWAGGER. It must be loaded in the browser location, because it brings the user to the SSO page.
         /// </summary>
         /// <param name="redirectUri">URL to go back to.</param>
         [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
@@ -43,7 +44,7 @@ namespace Scv.Api.Controllers
         }
 
         /// <summary>
-        /// Logout function, should wipe out all cookies. 
+        /// Logout function, should wipe out all cookies.
         /// </summary>
         [HttpGet("logout")]
         public async Task<IActionResult> Logout()
@@ -58,7 +59,7 @@ namespace Scv.Api.Controllers
                 : Request.Host.ToString();
             var forwardedPort = HttpContext.Request.Headers["X-Forwarded-Port"];
 
-            //We are always sending X-Forwarded-Port, only time we aren't is when we are hitting the API directly. 
+            //We are always sending X-Forwarded-Port, only time we aren't is when we are hitting the API directly.
             var baseUri = HttpContext.Request.Headers.ContainsKey("X-Forwarded-Host") ? $"{HttpContext.Request.Headers["X-Base-Href"]}logout" : "/api";
 
             var applicationUrl = $"{XForwardedForHelper.BuildUrlString(forwardedHost, forwardedPort, baseUri)}";
