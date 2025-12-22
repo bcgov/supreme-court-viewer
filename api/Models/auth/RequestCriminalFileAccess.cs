@@ -1,6 +1,6 @@
 ﻿namespace Scv.Api.Models.auth
 {
-    public class RequestCriminalFileAccess
+    public class RequestCriminalFileAccess : IFileAccessRequest
     {
         public string UserId { get; set; }
         public string UserName { get; set; }
