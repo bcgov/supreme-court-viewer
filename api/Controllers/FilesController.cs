@@ -99,7 +99,7 @@ namespace Scv.Api.Controllers
             if (civilFileDetailResponse?.PhysicalFileId == null)
                 throw new NotFoundException("Couldn't find civil file with this id.");
 
-            if (User.IsVcUser() && civilFileDetailResponse.SealedYN != "N") 
+            if (User.IsVcUser() && civilFileDetailResponse.SealedYN != "N")
                 return Forbid();
 
             if (User.IsSupremeUser() && civilFileDetailResponse.CourtLevelCd != CivilFileDetailResponseCourtLevelCd.S)
@@ -128,7 +128,7 @@ namespace Scv.Api.Controllers
                     throw new NotFoundException("Couldn't find civil file with this id.");
                 if (civilFileDetailResponse.SealedYN != "N")
                     return Forbid();
-            } 
+            }
 
             var civilAppearanceDetail = await _civilFilesService.DetailedAppearanceAsync(fileId, appearanceId, User.IsVcUser());
             if (civilAppearanceDetail == null)
@@ -209,6 +209,7 @@ namespace Scv.Api.Controllers
 
             if (User.IsVcUser() && !await _vcCriminalFileAccessHandler.HasCriminalFileAccess(User, fileId))
                 return Forbid();
+
             var redactedCriminalFileDetailResponse = await _criminalFilesService.FileIdAsync(fileId);
             if (redactedCriminalFileDetailResponse?.JustinNo == null)
                 throw new NotFoundException("Couldn't find criminal file with this id.");
@@ -230,13 +231,15 @@ namespace Scv.Api.Controllers
         [Route("criminal/{fileId}/appearance-detail/{appearanceId}/{partId}")]
         public async Task<ActionResult<CriminalAppearanceDetail>> GetCriminalAppearanceDetails(string fileId, string appearanceId, string partId)
         {
+            if (User.IsVcUser() && !await _vcCriminalFileAccessHandler.HasCriminalFileAccess(User, fileId))
+                return Forbid();
+
             var appearanceDetail = await _criminalFilesService.AppearanceDetailAsync(fileId, appearanceId, partId);
             if (appearanceDetail == null)
                 throw new NotFoundException("Couldn't find appearance details with the provided parameters.");
 
             if (User.IsSupremeUser() && appearanceDetail.CourtLevelCd != CriminalFileDetailResponseCourtLevelCd.S)
                 return Forbid();
-
 
             return Ok(appearanceDetail);
         }
@@ -283,10 +286,12 @@ namespace Scv.Api.Controllers
             documentId = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(documentId));
             if (User.IsVcUser())
             {
-                if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
+                // Civil Document
+                if (!isCriminal && !await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
                     return Forbid();
 
-                if (isCriminal)
+                // Criminal Document
+                if (isCriminal && !await _vcCriminalFileAccessHandler.HasCriminalFileAccess(User, fileId))
                     return Forbid();
 
                 var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
@@ -380,7 +385,7 @@ namespace Scv.Api.Controllers
             var pdfDocuments = courtSummaryReports.SelectToList(d => new PdfDocument
                 { Content = d.ReportContent, FileName = courtSummaryRequests[courtSummaryReports.IndexOf(d)].PdfFileName });
 
-            //TODO documents coming back are streams. this is disabled for now. 
+            //TODO documents coming back are streams. this is disabled for now.
             /*pdfDocuments.AddRange(documents.SelectToList(d => new PdfDocument
                 { Content = d.B64Content, FileName = documentRequest[documents.IndexOf(d)].PdfFileName}));*/
 
@@ -390,7 +395,7 @@ namespace Scv.Api.Controllers
             return await BuildArchiveWithPdfFiles(pdfDocuments, archiveRequest.ZipName);
         }
 
-        #endregion Documents 
+        #endregion Documents
 
         #region Helpers
 
