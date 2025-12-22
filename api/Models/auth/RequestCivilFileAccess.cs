@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Scv.Api.Models.auth
 {
-    public class RequestCivilFileAccess
+    public class RequestCivilFileAccess : IFileAccessRequest
     {
         public string UserId { get; set; }
         public string UserName { get; set; }
