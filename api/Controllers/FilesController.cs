@@ -287,20 +287,32 @@ namespace Scv.Api.Controllers
             if (User.IsVcUser())
             {
                 // Civil Document
-                if (!isCriminal && !await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
+                if (!isCriminal)
+                {
+                    if(!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
                     return Forbid();
+
+                    var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
+                    if (civilFileDetailResponse?.PhysicalFileId == null)
+                        throw new NotFoundException("Couldn't find civil file with this id.");
+
+                    //This handles the documents being sealed as well. The documentId would be set to null.
+                    if (civilFileDetailResponse.SealedYN != "N" || civilFileDetailResponse.Document.All(s => s.CivilDocumentId != documentId))
+                        return Forbid();
+                }
 
                 // Criminal Document
-                if (isCriminal && !await _vcCriminalFileAccessHandler.HasCriminalFileAccess(User, fileId))
+                if (isCriminal)
+                {
+                    if(!await _vcCriminalFileAccessHandler.HasCriminalFileAccess(User, fileId))
                     return Forbid();
 
-                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
-                if (civilFileDetailResponse?.PhysicalFileId == null)
-                    throw new NotFoundException("Couldn't find civil file with this id.");
+                    var criminalFileDetailResponse = await _criminalFilesService.FileIdAsync(fileId);
+                    if (criminalFileDetailResponse?.JustinNo == null)
+                        throw new NotFoundException("Couldn't find criminal file with this id.");
 
-                //This handles the documents being sealed as well. The documentId would be set to null.
-                if (civilFileDetailResponse.SealedYN != "N" || civilFileDetailResponse.Document.All(s => s.CivilDocumentId != documentId))
-                    return Forbid();
+                }
+
             }
 
             String pacificZone;
