@@ -77,7 +77,8 @@ namespace tests.api.Controllers
 
             //TODO fake this.
             var vcCivilFileAccessHandler = new VcCivilFileAccessHandler(new ScvDbContext());
-            _controller = new FilesController(fileServices.Configuration, fileServices.LogFactory.CreateLogger<FilesController>(), _service, vcCivilFileAccessHandler, contextAccessor);
+            var vcCriminalFileAccessHandler = new VcCriminalFileAccessHandler(new ScvDbContext());
+            _controller = new FilesController(fileServices.Configuration, fileServices.LogFactory.CreateLogger<FilesController>(), _service, vcCivilFileAccessHandler, vcCriminalFileAccessHandler, contextAccessor);
             _controller.ControllerContext = HttpResponseTest.SetupMockControllerContext(fileServices.Configuration);
         }
 
