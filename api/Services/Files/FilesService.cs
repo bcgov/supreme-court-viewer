@@ -67,7 +67,7 @@ namespace Scv.Api.Services.Files
                 correlationId = Guid.NewGuid().ToString();
             }
 
-            return await _filesClient.FilesDocumentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, documentId, isCriminal ? "R" : "I", physicalFileId, flatten: false, correlationId);
+            return await _filesClient.FilesDocumentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, documentId, isCriminal ? "R" : "I", physicalFileId, flatten: true, correlationId);
         }
 
         #endregion Courtlist & Document
