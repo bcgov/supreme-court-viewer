@@ -285,6 +285,7 @@ namespace Scv.Api.Controllers
         public async Task<IActionResult> GetDocument(string documentId, string fileNameAndExtension, bool isCriminal, string fileId, string correlationId)
         {
             documentId = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(documentId));
+            string CourtLevelCode = null;
             if (User.IsVcUser())
             {
                 // Civil Document
@@ -300,6 +301,8 @@ namespace Scv.Api.Controllers
                     //This handles the documents being sealed as well. The documentId would be set to null.
                     if (civilFileDetailResponse.SealedYN != "N" || civilFileDetailResponse.Document.All(s => s.CivilDocumentId != documentId))
                         return this.FileAccessDenied();
+
+                    CourtLevelCode = civilFileDetailResponse?.CourtLevelCd.ToString();
                 }
 
                 // Criminal Document
@@ -311,6 +314,8 @@ namespace Scv.Api.Controllers
                     var criminalFileDetailResponse = await _criminalFilesService.FileIdAsync(fileId);
                     if (criminalFileDetailResponse?.JustinNo == null)
                         throw new NotFoundException("Couldn't find criminal file with this id.");
+
+                    CourtLevelCode = criminalFileDetailResponse?.CourtLevelCd.ToString();
 
                 }
             }
@@ -328,7 +333,7 @@ namespace Scv.Api.Controllers
             var start = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
             _logger.LogInformation("Request Tracking - API request to Mule - CorrelationId: {0} Start time: {1}", correlationId, start);
 
-            var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId, correlationId);
+            var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId, correlationId, CourtLevelCode);
 
             var end = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
             var duration = end.Subtract(start).TotalSeconds;
