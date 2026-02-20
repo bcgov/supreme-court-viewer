@@ -315,6 +315,27 @@ namespace Scv.Api.Controllers
                     if (criminalFileDetailResponse?.JustinNo == null)
                         throw new NotFoundException("Couldn't find criminal file with this id.");
 
+                    // Block access to following Douments of "Youth Files":
+                    // 1) All "Sentencing" Documents
+                    // 2) Release orders ("Bail") documents, where disposition date is more than 2 months
+                    if ((CourtClassCd)criminalFileDetailResponse.CourtClassCd == CourtClassCd.Y)
+                    {
+                        var document = criminalFileDetailResponse.Participant?
+                            .SelectMany(p => p.Document)
+                            .FirstOrDefault(d => d.ImageId == documentId);
+
+                        if (document?.DocmClassification == "Sentencing")
+                        {
+                            return this.FileAccessDenied();
+                        }
+                        if (document?.DocmClassification == "Bail" &&
+                            DateTime.TryParse(document.DocmDispositionDate?.ToString(), out var dispositionDate) &&
+                            DateTime.Today > dispositionDate.AddDays(60))
+                        {
+                            return this.FileAccessDenied();
+                        }
+                    }
+
                     CourtLevelCode = criminalFileDetailResponse?.CourtLevelCd.ToString();
 
                 }
