@@ -324,16 +324,48 @@ namespace Scv.Api.Controllers
                             .SelectMany(p => p.Document)
                             .FirstOrDefault(d => d.ImageId == documentId);
 
-                        if (document?.DocmClassification == "Sentencing")
+                        if (document?.DocmClassification.ToLower() == "sentencing")
                         {
                             return this.FileAccessDenied();
                         }
-                        if (document?.DocmClassification == "Bail" &&
+                        if (document?.DocmClassification.ToLower() == "bail" &&
                             DateTime.TryParse(document.DocmDispositionDate?.ToString(), out var dispositionDate) &&
                             DateTime.Today > dispositionDate.AddDays(60))
                         {
                             return this.FileAccessDenied();
                         }
+                    }
+
+                    // Allow Access to only the following document types of "Adult Files":
+                    // 1) "Conditional Sentence Order" Document
+                    // 2) All "Probation Order" Documents
+                    // 3) "Release Order" Document
+                    // 4) "Information" Document
+                    if ((CourtClassCd)criminalFileDetailResponse.CourtClassCd == CourtClassCd.A)
+                    {
+                        var document = criminalFileDetailResponse.Participant?
+                            .SelectMany(p => p.Document)
+                            .FirstOrDefault(d => d.ImageId == documentId);
+
+                        var form = document?.DocmFormDsc;
+
+                        var allowedDocuments = new[]
+                        {
+                            "Release Order",
+                            "Information",
+                            "Conditional Sentence Order"
+                        };
+
+                        bool isAllowed = form != null &&
+                                         allowedDocuments.Any(p =>
+                                             form.Equals(p, StringComparison.OrdinalIgnoreCase) ||
+                                             form.StartsWith("Probation Order", StringComparison.OrdinalIgnoreCase));
+
+                        if (!isAllowed)
+                        {
+                            return this.FileAccessDenied();
+                        }
+
                     }
 
                     CourtLevelCode = criminalFileDetailResponse?.CourtLevelCd.ToString();
