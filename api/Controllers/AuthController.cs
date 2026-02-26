@@ -19,6 +19,7 @@ using Scv.Db.Models.Auth;
 namespace Scv.Api.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class AuthController : ControllerBase
     {
         public ScvDbContext Db { get; }
@@ -32,7 +33,7 @@ namespace Scv.Api.Controllers
             AesGcmEncryption = aesGcmEncryption;
         }
         /// <summary>
-        /// This cannot be called from AJAX or SWAGGER. It must be loaded in the browser location, because it brings the user to the SSO page. 
+        /// This cannot be called from AJAX or SWAGGER. It must be loaded in the browser location, because it brings the user to the SSO page.
         /// </summary>
         /// <param name="redirectUri">URL to go back to.</param>
         [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
@@ -43,7 +44,7 @@ namespace Scv.Api.Controllers
         }
 
         /// <summary>
-        /// Logout function, should wipe out all cookies. 
+        /// Logout function, should wipe out all cookies.
         /// </summary>
         [HttpGet("logout")]
         public async Task<IActionResult> Logout()
@@ -58,7 +59,7 @@ namespace Scv.Api.Controllers
                 : Request.Host.ToString();
             var forwardedPort = HttpContext.Request.Headers["X-Forwarded-Port"];
 
-            //We are always sending X-Forwarded-Port, only time we aren't is when we are hitting the API directly. 
+            //We are always sending X-Forwarded-Port, only time we aren't is when we are hitting the API directly.
             var baseUri = HttpContext.Request.Headers.ContainsKey("X-Forwarded-Host") ? $"{HttpContext.Request.Headers["X-Base-Href"]}logout" : "/api";
 
             var applicationUrl = $"{XForwardedForHelper.BuildUrlString(forwardedHost, forwardedPort, baseUri)}";
@@ -71,21 +72,42 @@ namespace Scv.Api.Controllers
         [HttpPost("request-civil-file-access")]
         public async Task<IActionResult> RequestCivilFileAccess([FromBody] RequestCivilFileAccess request)
         {
-            if (string.IsNullOrEmpty(request.FileId) || string.IsNullOrEmpty(request.UserId))
+            return await RequestFileAccess(request, Request);
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("request-criminal-file-access")]
+        public async Task<IActionResult> RequestCriminalFileAccess([FromBody] RequestCriminalFileAccess request)
+        {
+            return await RequestFileAccess(request, Request);
+        }
+
+        private async Task<IActionResult> RequestFileAccess(IFileAccessRequest accessRequest, Microsoft.AspNetCore.Http.HttpRequest httpRequest)
+        {
+            // Default Civil Request
+            string expiryVariable = "RequestCivilFileAccessMinutes";
+            string urlPath = "civil-file";
+            if (accessRequest is RequestCriminalFileAccess)
+            {
+                expiryVariable = "RequestCriminalFileAccessMinutes";
+                urlPath = "criminal-file";
+            }
+
+            if (string.IsNullOrEmpty(accessRequest.FileId) || string.IsNullOrEmpty(accessRequest.UserId))
                 return BadRequest();
 
             if (!User.IsServiceAccountUser())
                 return Forbid();
 
-            var agencyId = string.IsNullOrEmpty(request.AgencyId) ? "" : AesGcmEncryption.Encrypt(request.AgencyId);
-            var partId = string.IsNullOrEmpty(request.PartId) ? "" : AesGcmEncryption.Encrypt(request.PartId);
+            var agencyId = string.IsNullOrEmpty(accessRequest.AgencyId) ? "" : AesGcmEncryption.Encrypt(accessRequest.AgencyId);
+            var partId = string.IsNullOrEmpty(accessRequest.PartId) ? "" : AesGcmEncryption.Encrypt(accessRequest.PartId);
 
-            var expiryMinutes = float.Parse(Configuration.GetNonEmptyValue("RequestCivilFileAccessMinutes"));
+            var expiryMinutes = float.Parse(Configuration.GetValue($"{expiryVariable}", "15.0"));
             await Db.RequestFileAccess.AddAsync(new RequestFileAccess
             {
-                FileId = request.FileId,
-                UserId = request.UserId,
-                UserName = request.UserName,
+                FileId = accessRequest.FileId,
+                UserId = accessRequest.UserId,
+                UserName = accessRequest.UserName,
                 AgencyId = agencyId,
                 PartId = partId,
                 Requested = DateTimeOffset.UtcNow,
@@ -93,9 +115,9 @@ namespace Scv.Api.Controllers
             });
             await Db.SaveChangesAsync();
 
-            var forwardedHost = Request.Headers["X-Forwarded-Host"];
-            var forwardedPort = Request.Headers["X-Forwarded-Port"];
-            var baseUrl = Request.Headers["X-Base-Href"];
+            var forwardedHost = httpRequest.Headers["X-Forwarded-Host"];
+            var forwardedPort = httpRequest.Headers["X-Forwarded-Port"];
+            var baseUrl = httpRequest.Headers["X-Base-Href"];
 
             return Ok(new
             {
@@ -103,11 +125,10 @@ namespace Scv.Api.Controllers
                     forwardedHost,
                     forwardedPort,
                     baseUrl,
-                    $"civil-file/{request.FileId}",
+                    $"{urlPath}/{accessRequest.FileId}",
                     "fromA2A=true")
             });
         }
-
 
         /// <summary>
         /// Provides a way for the front-end to get info about the user.

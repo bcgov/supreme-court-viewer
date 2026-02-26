@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Scv.Api.Models.auth
+﻿namespace Scv.Api.Models.auth
 {
-    public class RequestCivilFileAccess : IFileAccessRequest
+    public class RequestCriminalFileAccess : IFileAccessRequest
     {
         public string UserId { get; set; }
         public string UserName { get; set; }

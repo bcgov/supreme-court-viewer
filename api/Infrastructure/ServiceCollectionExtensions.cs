@@ -79,6 +79,7 @@ namespace Scv.Api.Infrastructure
             services.AddScoped<LocationService>();
             services.AddScoped<CourtListService>();
             services.AddScoped<VcCivilFileAccessHandler>();
+            services.AddScoped<VcCriminalFileAccessHandler>();
             services.AddSingleton<JCUserService>();
             services.AddSingleton<AesGcmEncryption>();
 

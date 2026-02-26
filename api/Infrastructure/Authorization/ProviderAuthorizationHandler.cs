@@ -48,7 +48,8 @@ namespace Scv.Api.Infrastructure.Authorization
                     nameof(FilesController.GetCivilCourtSummaryReport),
                     nameof(FilesController.GetDocument),
                     nameof(FilesController.GetArchive),
-                    nameof(FilesController.GetCivilAppearanceDetails)
+                    nameof(FilesController.GetCivilAppearanceDetails),
+                    nameof(FilesController.GetCriminalFileDetailByFileId),
                 };
 
                 if (isFilesController && allowedActionsForVc.Contains(actionDescriptor.ActionName))
@@ -57,7 +58,7 @@ namespace Scv.Api.Infrastructure.Authorization
                     return Task.CompletedTask;
                 }
                 if (isAuthController && actionDescriptor.ActionName == nameof(AuthController.UserInfo))
-                { 
+                {
                     context.Succeed(requirement);
                     return Task.CompletedTask;
                 }
