@@ -27,6 +27,7 @@ namespace Scv.Api.Services.Files
         private readonly string _applicationCode;
         private readonly string _requestAgencyIdentifierId;
         private readonly string _requestPartId;
+        private readonly IConfiguration _configuration;
 
         #endregion Variables
 
@@ -45,6 +46,7 @@ namespace Scv.Api.Services.Files
             _filesClient = filesClient;
             _filesClient.JsonSerializerSettings.ContractResolver = new SafeContractResolver { NamingStrategy = new CamelCaseNamingStrategy() };
             _cache = cache;
+            _configuration = configuration;
             _cache.DefaultCachePolicy.DefaultCacheDurationSeconds = int.Parse(configuration.GetNonEmptyValue("Caching:FileExpiryMinutes")) * 60;
             Civil = new CivilFilesService(configuration, filesClient, mapper, lookupService, locationService, _cache, claimsPrincipal, factory.CreateLogger<CivilFilesService>());
             Criminal = new CriminalFilesService(configuration, filesClient, mapper, lookupService, locationService, _cache, claimsPrincipal);
@@ -67,7 +69,7 @@ namespace Scv.Api.Services.Files
             {
                 correlationId = Guid.NewGuid().ToString();
             }
-            if (courtLevelCd == CourtLevelCd.P.ToString())
+            if (courtLevelCd == CourtLevelCd.P.ToString() && !_configuration.GetValue<bool>("DisableDocumentFlattening"))
             {
                 flattenPDF = true;
             }
