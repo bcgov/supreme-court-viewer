@@ -27,6 +27,7 @@ namespace Scv.Api.Services.Files
         private readonly string _applicationCode;
         private readonly string _requestAgencyIdentifierId;
         private readonly string _requestPartId;
+        private readonly IConfiguration _configuration;
 
         #endregion Variables
 
@@ -45,6 +46,7 @@ namespace Scv.Api.Services.Files
             _filesClient = filesClient;
             _filesClient.JsonSerializerSettings.ContractResolver = new SafeContractResolver { NamingStrategy = new CamelCaseNamingStrategy() };
             _cache = cache;
+            _configuration = configuration;
             _cache.DefaultCachePolicy.DefaultCacheDurationSeconds = int.Parse(configuration.GetNonEmptyValue("Caching:FileExpiryMinutes")) * 60;
             Civil = new CivilFilesService(configuration, filesClient, mapper, lookupService, locationService, _cache, claimsPrincipal, factory.CreateLogger<CivilFilesService>());
             Criminal = new CriminalFilesService(configuration, filesClient, mapper, lookupService, locationService, _cache, claimsPrincipal);
@@ -60,14 +62,19 @@ namespace Scv.Api.Services.Files
         
         #region Courtlist & Document     
 
-        public async Task<FileResponse> DocumentAsync(string documentId, bool isCriminal, string physicalFileId, string correlationId = null)
-        {   
+        public async Task<FileResponse> DocumentAsync(string documentId, bool isCriminal, string physicalFileId, string correlationId = null, string courtLevelCd = null)
+        {
+            bool flattenPDF = false;
             if (correlationId == null)
             {
                 correlationId = Guid.NewGuid().ToString();
             }
+            if (courtLevelCd == CourtLevelCd.P.ToString() && !_configuration.GetValue<bool>("DisableDocumentFlattening"))
+            {
+                flattenPDF = true;
+            }
 
-            return await _filesClient.FilesDocumentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, documentId, isCriminal ? "R" : "I", physicalFileId, flatten: false, correlationId);
+            return await _filesClient.FilesDocumentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, documentId, isCriminal ? "R" : "I", physicalFileId, flatten: flattenPDF, correlationId);
         }
 
         #endregion Courtlist & Document

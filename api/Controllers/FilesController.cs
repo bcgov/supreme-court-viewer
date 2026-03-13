@@ -1,28 +1,29 @@
 ﻿using JCCommon.Clients.FileServices;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Scv.Api.Constants;
+using Scv.Api.Helpers;
 using Scv.Api.Helpers.Exceptions;
+using Scv.Api.Helpers.Extensions;
+using Scv.Api.Infrastructure.Authorization;
+using Scv.Api.Models.archive;
 using Scv.Api.Models.Civil.Detail;
 using Scv.Api.Models.Criminal.Detail;
+using Scv.Api.Services.Files;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Scv.Api.Helpers.Extensions;
-using Scv.Api.Services.Files;
 using CivilAppearanceDetail = Scv.Api.Models.Civil.AppearanceDetail.CivilAppearanceDetail;
 using CriminalAppearanceDetail = Scv.Api.Models.Criminal.AppearanceDetail.CriminalAppearanceDetail;
-using System.Text;
-using Microsoft.AspNetCore.WebUtilities;
-using Scv.Api.Helpers;
-using Scv.Api.Infrastructure.Authorization;
-using Scv.Api.Models.archive;
 
 namespace Scv.Api.Controllers
 {
@@ -155,16 +156,16 @@ namespace Scv.Api.Controllers
             {
                 //Ensure the user has access to that FileId, and the appearanceId belongs to the FileId.
                 if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, vcCivilFileId))
-                    return Forbid();
+                    return this.FileAccessDenied();
 
                 var civilFileDetailResponse = await _civilFilesService.FileIdAsync(vcCivilFileId, User.IsVcUser(), User.IsStaff());
                 if (civilFileDetailResponse?.PhysicalFileId == null)
                     throw new NotFoundException("Couldn't find civil file with this id.");
                 if (civilFileDetailResponse.SealedYN != "N")
-                    return Forbid();
+                    return this.FileAccessDenied();
 
                 if (!civilFileDetailResponse.Appearances.ApprDetail.Any(ad => ad.AppearanceId == appearanceId))
-                    return Forbid();
+                    return this.FileAccessDenied();
             }
 
             var justinReportResponse = await _civilFilesService.CourtSummaryReportAsync(appearanceId, JustinReportName.CEISR035);
@@ -284,23 +285,92 @@ namespace Scv.Api.Controllers
         public async Task<IActionResult> GetDocument(string documentId, string fileNameAndExtension, bool isCriminal, string fileId, string correlationId)
         {
             documentId = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(documentId));
+            string CourtLevelCode = null;
             if (User.IsVcUser())
             {
                 // Civil Document
-                if (!isCriminal && !await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
-                    return Forbid();
+                if (!isCriminal)
+                {
+                    if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
+                        return this.FileAccessDenied();
+
+                    var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
+                    if (civilFileDetailResponse?.PhysicalFileId == null)
+                        throw new NotFoundException("Couldn't find civil file with this id.");
+
+                    //This handles the documents being sealed as well. The documentId would be set to null.
+                    if (civilFileDetailResponse.SealedYN != "N" || civilFileDetailResponse.Document.All(s => s.CivilDocumentId != documentId))
+                        return this.FileAccessDenied();
+
+                    CourtLevelCode = civilFileDetailResponse?.CourtLevelCd.ToString();
+                }
 
                 // Criminal Document
-                if (isCriminal && !await _vcCriminalFileAccessHandler.HasCriminalFileAccess(User, fileId))
-                    return Forbid();
+                if (isCriminal)
+                {
+                    if (!await _vcCriminalFileAccessHandler.HasCriminalFileAccess(User, fileId))
+                        return this.FileAccessDenied();
 
-                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
-                if (civilFileDetailResponse?.PhysicalFileId == null)
-                    throw new NotFoundException("Couldn't find civil file with this id.");
+                    var criminalFileDetailResponse = await _criminalFilesService.FileIdAsync(fileId);
+                    if (criminalFileDetailResponse?.JustinNo == null)
+                        throw new NotFoundException("Couldn't find criminal file with this id.");
 
-                //This handles the documents being sealed as well. The documentId would be set to null.
-                if (civilFileDetailResponse.SealedYN != "N" || civilFileDetailResponse.Document.All(s => s.CivilDocumentId != documentId))
-                    return Forbid();
+                    // Block access to following Douments of "Youth Files":
+                    // 1) All "Sentencing" Documents
+                    // 2) Release orders ("Bail") documents, where disposition date is more than 2 months
+                    if ((CourtClassCd)criminalFileDetailResponse.CourtClassCd == CourtClassCd.Y)
+                    {
+                        var document = criminalFileDetailResponse.Participant?
+                            .SelectMany(p => p.Document)
+                            .FirstOrDefault(d => d.ImageId == documentId);
+
+                        if (document?.DocmClassification.ToLower() == "sentencing")
+                        {
+                            return this.FileAccessDenied();
+                        }
+                        if (document?.DocmClassification.ToLower() == "bail" &&
+                            DateTime.TryParse(document.DocmDispositionDate?.ToString(), out var dispositionDate) &&
+                            DateTime.Today > dispositionDate.AddDays(60))
+                        {
+                            return this.FileAccessDenied();
+                        }
+                    }
+
+                    // Allow Access to only the following document types of "Adult Files":
+                    // 1) "Conditional Sentence Order" Document
+                    // 2) All "Probation Order" Documents
+                    // 3) "Release Order" Document
+                    // 4) "Information" Document
+                    if ((CourtClassCd)criminalFileDetailResponse.CourtClassCd == CourtClassCd.A)
+                    {
+                        var document = criminalFileDetailResponse.Participant?
+                            .SelectMany(p => p.Document)
+                            .FirstOrDefault(d => d.ImageId == documentId);
+
+                        var form = document?.DocmFormDsc;
+
+                        var allowedDocuments = new[]
+                        {
+                            "Release Order",
+                            "Information",
+                            "Conditional Sentence Order"
+                        };
+
+                        bool isAllowed = form != null &&
+                                         allowedDocuments.Any(p =>
+                                             form.Equals(p, StringComparison.OrdinalIgnoreCase) ||
+                                             form.StartsWith("Probation Order", StringComparison.OrdinalIgnoreCase));
+
+                        if (!isAllowed)
+                        {
+                            return this.FileAccessDenied();
+                        }
+
+                    }
+
+                    CourtLevelCode = criminalFileDetailResponse?.CourtLevelCd.ToString();
+
+                }
             }
 
             String pacificZone;
@@ -316,7 +386,7 @@ namespace Scv.Api.Controllers
             var start = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
             _logger.LogInformation("Request Tracking - API request to Mule - CorrelationId: {0} Start time: {1}", correlationId, start);
 
-            var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId, correlationId);
+            var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId, correlationId, CourtLevelCode);
 
             var end = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
             var duration = end.Subtract(start).TotalSeconds;
