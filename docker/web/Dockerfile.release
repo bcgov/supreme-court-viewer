@@ -83,7 +83,7 @@ COPY --chmod=060 ${WEB_SRC}/package*.json .
 
 # Install packages. Skip lifecycle scripts to keep the forced resolutions hook from
 # floating transitive dependencies beyond what this Node 12 build supports.
-RUN npm install --ignore-scripts ${NPM_INSTALL_ARGS}
+RUN npm ci --ignore-scripts ${NPM_INSTALL_ARGS}
 RUN npm rebuild node-sass
 
 # Copy the source code. Read set for all categories to avoid permission issues on build.
