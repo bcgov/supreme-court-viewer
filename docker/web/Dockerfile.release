@@ -81,8 +81,10 @@ WORKDIR /opt/app-root/src
 # Others - no access keeping with zero trust principle.
 COPY --chmod=060 ${WEB_SRC}/package*.json .
 
-# Install packages
-RUN npm install ${NPM_INSTALL_ARGS}
+# Install packages. Skip lifecycle scripts to keep the forced resolutions hook from
+# floating transitive dependencies beyond what this Node 12 build supports.
+RUN npm install --ignore-scripts ${NPM_INSTALL_ARGS}
+RUN npm rebuild node-sass
 
 # Copy the source code. Read set for all categories to avoid permission issues on build.
 # User - no specific access required
