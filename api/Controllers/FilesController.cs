@@ -324,15 +324,34 @@ namespace Scv.Api.Controllers
                             .SelectMany(p => p.Document)
                             .FirstOrDefault(d => d.ImageId == documentId);
 
-                        if (document?.DocmClassification.ToLower() == "sentencing")
+                        var youthForm = document?.DocmFormDsc;
+
+                        var allowedYouthDocuments = new[]
+                        {
+                            "Release Order",
+                            "Information"
+                        };
+
+                        bool isYouthDocAllowed = youthForm != null &&
+                            allowedYouthDocuments.Any(p => youthForm.Equals(p, StringComparison.OrdinalIgnoreCase));
+                            
+                        if (!isYouthDocAllowed)
                         {
                             return this.FileAccessDenied();
                         }
-                        if (document?.DocmClassification.ToLower() == "bail" &&
-                            DateTime.TryParse(document.DocmDispositionDate?.ToString(), out var dispositionDate) &&
-                            DateTime.Today > dispositionDate.AddDays(60))
+
+                        var youthAppearances = criminalFileDetailResponse.Appearances?.ApprDetail;
+                        if (youthAppearances != null)
                         {
-                            return this.FileAccessDenied();
+                            bool hasExpiredEndResult = youthAppearances.Any(a =>
+                                string.Equals(a.AppearanceResultCd, "END", StringComparison.OrdinalIgnoreCase) &&
+                                DateTime.TryParse(a.AppearanceDt, out var appearanceDt) &&
+                                DateTime.Today > appearanceDt.AddDays(60));
+
+                            if (hasExpiredEndResult)
+                            {
+                                return this.FileAccessDenied();
+                            }
                         }
                     }
 
@@ -349,7 +368,7 @@ namespace Scv.Api.Controllers
 
                         var form = document?.DocmFormDsc;
 
-                        var allowedDocuments = new[]
+                        var allowedAdultDocuments = new[]
                         {
                             "Release Order",
                             "Information",
@@ -357,7 +376,7 @@ namespace Scv.Api.Controllers
                         };
 
                         bool isAllowed = form != null &&
-                                         allowedDocuments.Any(p =>
+                                         allowedAdultDocuments.Any(p =>
                                              form.Equals(p, StringComparison.OrdinalIgnoreCase) ||
                                              form.StartsWith("Probation Order", StringComparison.OrdinalIgnoreCase));
 
